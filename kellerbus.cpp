@@ -5,6 +5,7 @@
 CKellerBus::CKellerBus(HardwareSerial* mComm, unsigned long pBaudrate,unsigned char RTS){
   
   Baudrate = pBaudrate;
+  Timeout = 100;
   Comm = mComm;
   RTS_PIN = RTS;
   
@@ -31,9 +32,9 @@ unsigned short CKellerBus::Open()
   
   return 1;
 }
-int CKellerBus::initDevice(unsigned char Device) 
+unsigned short CKellerBus::initDevice(unsigned char Device = 250) 
 {
-  int ret;
+  unsigned short ret;
   Open();
   cDevice = Device;
   TxBuffer[0] = cDevice;
@@ -53,9 +54,9 @@ int CKellerBus::initDevice(unsigned char Device)
   Close();
   return ret;
 }
-int CKellerBus::initDevice() 
+unsigned short CKellerBus::initDevice() 
 {
-  int ret;
+  unsigned short ret;
   Open();
   TxBuffer[0] = cDevice;
   TxBuffer[1] = 0b01111111 & 48;
@@ -69,16 +70,30 @@ int CKellerBus::initDevice()
     cState = RxBuffer[7];
     ret = COMM_OK;
   } else {
-    ret = COMM_ERR_BAD_CRC;
+      // 2nd try for sleeping dcx
+      delay(5);
+      TxBuffer[0] = cDevice;
+      TxBuffer[1] = 0b01111111 & 48;
+      if(TransferData(2,10) == COMM_OK) {
+      cClass = RxBuffer[2];
+      cGroup = RxBuffer[3];
+      cYear = RxBuffer[4];
+      cWeek = RxBuffer[5];
+      cBuffer = RxBuffer[6];
+      cState = RxBuffer[7];
+      ret = COMM_OK;
+    } else {
+      ret = COMM_ERR_BAD_CRC;
+    }
   }
   Close();
   return ret;
 }
-int CKellerBus::readChannel(unsigned char Channel)
+unsigned short CKellerBus::readChannel(unsigned char Channel)
 {
   unsigned char bteArr[4];
   float value;
-  int ret;
+  unsigned short ret;
   
   Open();
   
@@ -115,19 +130,19 @@ int CKellerBus::TransferData(unsigned short nTX, unsigned short nRX)
 {
   unsigned int Crc; 
   unsigned char n, m, x,CRC_H,CRC_L,delay_cnt;
-  unsigned short Repeat = 1;
   int ret;
   unsigned long b=0;
   
-  // initialisation CRC16
-  Crc= 0xFFFF; 
-  m= nTX; 
-  x= 0;
-  
+  // Clear RxBuffer;
   for(b = 0; b < COMM_TX_MAX + COMM_RX_MAX; b++) {
     RxBuffer[b] = 0;
   }
   b = 0;
+  
+  // initialisation CRC16
+  Crc= 0xFFFF; 
+  m= nTX; 
+  x= 0; 
   
   // loop over all bits 
   while(m>0) {
@@ -151,28 +166,23 @@ int CKellerBus::TransferData(unsigned short nTX, unsigned short nRX)
   TxBuffer[nTX] = CRC_H;
   TxBuffer[nTX+1] = CRC_L;
   
-  
+  digitalWrite(RTS_PIN,HIGH);
+  delay(3);
+  Comm->write(TxBuffer,nTX + 2);
+  delay(2);
+  digitalWrite(RTS_PIN,LOW);  
+    
+  delay_cnt = 0;
+    
   do {
-    digitalWrite(RTS_PIN,HIGH);
-    delay(3);
-    Comm->write(TxBuffer,nTX + 2);
-    delay(2);
-    digitalWrite(RTS_PIN,LOW);  
-    
-    delay_cnt = 0;
-    
-    do {
-      if (Comm->available() > 0) {
-        RxBuffer[b] = Comm->read(); 
-        b++;
-        Repeat = 1;
-      }      
-      delay(1);  
-      delay_cnt += 1;   
-    } while(delay_cnt <= 105); // timeout max 105ms
-    Repeat--;
-    delay(2);
-  } while(Repeat >= 1); 
+    if (Comm->available() > 0) {
+      RxBuffer[b] = Comm->read(); 
+      b++;
+    }      
+    delay(1);  
+    delay_cnt += 1;   
+  } while(delay_cnt <= Timeout); // timeout max 105ms
+  delay(2);
   
   if(b == nRX) {
     ret = COMM_OK;             
