@@ -1,7 +1,5 @@
 #include "kellerbus.h"
 
-// kellerbus.cpp
-
 CKellerBus::CKellerBus(HardwareSerial* mComm, unsigned long pBaudrate,unsigned char RTS){
   
   Baudrate = pBaudrate;
@@ -49,7 +47,21 @@ unsigned short CKellerBus::initDevice(unsigned char Device = 250)
     cState = RxBuffer[7];
     ret = COMM_OK;
   } else {
-    ret = COMM_ERR_BAD_CRC;
+      // 2nd try for sleeping dcx
+      delay(5);
+      TxBuffer[0] = cDevice;
+      TxBuffer[1] = 0b01111111 & 48;
+      if(TransferData(2,10) == COMM_OK) {
+      cClass = RxBuffer[2];
+      cGroup = RxBuffer[3];
+      cYear = RxBuffer[4];
+      cWeek = RxBuffer[5];
+      cBuffer = RxBuffer[6];
+      cState = RxBuffer[7];
+      ret = COMM_OK;
+    } else {
+      ret = COMM_ERR_BAD_CRC;
+    }
   }
   Close();
   return ret;
@@ -85,6 +97,22 @@ unsigned short CKellerBus::initDevice()
     } else {
       ret = COMM_ERR_BAD_CRC;
     }
+  }
+  Close();
+  return ret;
+}
+unsigned short CKellerBus::readSerialnumber() 
+{
+  unsigned short ret;
+  Open();
+  TxBuffer[0] = cDevice;
+  TxBuffer[1] = 0b01111111 & 69;
+  
+  if(TransferData(2,8) == COMM_OK) {
+    Serialnumber = 256*65536*(unsigned long)RxBuffer[2] + 65536*(unsigned long)RxBuffer[3] + 256*(unsigned long)RxBuffer[4] + (unsigned long)RxBuffer[5];
+    ret = COMM_OK;
+  } else {
+    ret = COMM_ERR_BAD_CRC;
   }
   Close();
   return ret;
@@ -232,7 +260,9 @@ float CKellerBus::getTOB2() {
 float CKellerBus::getT() {
   return chT;
 }
-
+unsigned long CKellerBus::getSerialnumber() {
+  return Serialnumber;
+}
 unsigned short CKellerBus::Close()
 {
   Comm->end();
