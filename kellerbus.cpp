@@ -25,12 +25,10 @@ CKellerBus::CKellerBus(HardwareSerial* mComm, unsigned long pBaudrate,unsigned c
 }
 unsigned short CKellerBus::Open()
 {
-  Comm->begin(Baudrate);
-  delay(2);  
-  
+  Comm->begin(Baudrate);  
   return 1;
 }
-unsigned short CKellerBus::initDevice(unsigned char Device = 250) 
+unsigned short CKellerBus::initDevice(unsigned char Device) 
 {
   unsigned short ret;
   Open();
@@ -157,7 +155,7 @@ unsigned short CKellerBus::readChannel(unsigned char Channel)
 int CKellerBus::TransferData(unsigned short nTX, unsigned short nRX) 
 {
   unsigned int Crc; 
-  unsigned char n, m, x,CRC_H,CRC_L,delay_cnt;
+  unsigned char n, m, x,delay_cnt;
   int ret;
   unsigned long b=0;
   
@@ -186,16 +184,12 @@ int CKellerBus::TransferData(unsigned short nTX, unsigned short nRX)
     m--; 
     x++;
   } // result 
-  CRC_H= (Crc>>8)&0xFF; 
-  CRC_L= Crc&0xFF;  
+  TxBuffer[nTX]= (Crc>>8)&0xFF; 
+  TxBuffer[nTX+1]= Crc&0xFF;  
   // End CRC16
   
-  
-  TxBuffer[nTX] = CRC_H;
-  TxBuffer[nTX+1] = CRC_L;
-  
   digitalWrite(RTS_PIN,HIGH);
-  delay(3);
+  delay(2);
   Comm->write(TxBuffer,nTX + 2);
   delay(2);
   digitalWrite(RTS_PIN,LOW);  

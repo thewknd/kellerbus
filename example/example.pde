@@ -1,3 +1,15 @@
+/*
+example.pde
+
+
+output:
+TYPE: 5.5-7.6
+SN  : 127812
+P1  : 0.9693163871 bar
+TOB1: 25.9570312500 C
+
+*/
+
 #include "kellerbus.h"
 
 CKellerBus kbus(&Serial1,9600,2);
@@ -28,7 +40,7 @@ void loop() {
   kbus.readChannel(1);
   Serial.print("P1  : ");
   Serial.print(kbus.getP1(),DEC);
-  Serial.println(" mbar");
+  Serial.println(" bar");
   
   kbus.readChannel(4);
   Serial.print("TOB1: ");
