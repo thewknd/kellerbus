@@ -1,3 +1,7 @@
+/*
+This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported License. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/3.0/ or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
+*/
+
 #include "kellerbus.h"
 
 CKellerBus::CKellerBus(HardwareSerial* mComm, unsigned long pBaudrate,unsigned char RTS){
@@ -142,9 +146,9 @@ unsigned short CKellerBus::readChannel(unsigned char Channel)
       case 4: chTOB1 = value; break;  
       case 5: chTOB2 = value; break;  
       case 3: chT = value; break;  
-      default:break;
-      ret = COMM_OK;
+      default:break;   
     }
+    ret = COMM_OK;
 
   } else {
     ret = COMM_ERR_BAD_CRC;
