@@ -2,3 +2,5 @@
 example/kellerbus.cpp
 
 example/kellerbus.h
+
+.gitignore
