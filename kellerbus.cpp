@@ -42,7 +42,6 @@ unsigned short CKellerBus::initDevice(unsigned char Device)
     TxBuffer[b] = 0;
   }
   
-  Open();
   cDevice = Device;
   TxBuffer[0] = cDevice;
   TxBuffer[1] = 0b01111111 & 48;
@@ -72,7 +71,7 @@ unsigned short CKellerBus::initDevice(unsigned char Device)
       ret = COMM_ERR_BAD_CRC;
     }
   }
-  Close();
+
   return ret;
 }
 unsigned short CKellerBus::initDevice() 
@@ -85,12 +84,9 @@ unsigned short CKellerBus::initDevice()
     TxBuffer[b] = 0;
   }
   
-  Open();
   TxBuffer[0] = cDevice;
   TxBuffer[1] = 0b01111111 & 48;
-  
-
-  
+    
   if(TransferData(2,10) == COMM_OK) {
     cClass = RxBuffer[2];
     cGroup = RxBuffer[3];
@@ -116,7 +112,7 @@ unsigned short CKellerBus::initDevice()
       ret = COMM_ERR_BAD_CRC;
     }
   }
-  Close();
+
   return ret;
 }
 unsigned short CKellerBus::readSerialnumber() 
@@ -129,7 +125,6 @@ unsigned short CKellerBus::readSerialnumber()
     TxBuffer[b] = 0;
   }
   
-  Open();
   TxBuffer[0] = cDevice;
   TxBuffer[1] = 0b01111111 & 69;
   
@@ -139,7 +134,7 @@ unsigned short CKellerBus::readSerialnumber()
   } else {
     ret = COMM_ERR_BAD_CRC;
   }
-  Close();
+
   return ret;
 }
 unsigned short CKellerBus::readChannel(unsigned char Channel)
@@ -153,8 +148,6 @@ unsigned short CKellerBus::readChannel(unsigned char Channel)
   for(b = 0; b < COMM_TX_MAX; b++) {
     TxBuffer[b] = 0;
   }
-  
-  Open();
   
   TxBuffer[0] = cDevice;
   TxBuffer[1] = 0b01111111 & 73;
@@ -182,7 +175,7 @@ unsigned short CKellerBus::readChannel(unsigned char Channel)
   } else {
     ret = COMM_ERR_BAD_CRC;
   }
-  Close();
+
   return ret;
 }
 int CKellerBus::TransferData(unsigned short nTX, unsigned short nRX) 
@@ -221,12 +214,18 @@ int CKellerBus::TransferData(unsigned short nTX, unsigned short nRX)
   TxBuffer[nTX+1]= Crc&0xFF;  
   // End CRC16
   
+  // Open HWSerial
+  Open();
+  
   digitalWrite(RTS_PIN,HIGH);
-  delay(5);
+  delay(3);
+  
   Comm->write(TxBuffer,nTX + 2);
   delay(5);
+  
   digitalWrite(RTS_PIN,LOW);  
-  delay(5);  
+  delay(3);  
+  
   delay_cnt = 0;
   b = 0;  
   do {
@@ -245,8 +244,9 @@ int CKellerBus::TransferData(unsigned short nTX, unsigned short nRX)
   } else {
     ret = COMM_ERR_BAD_CRC;   
   }
-
-  delay(25);
+  	
+  // Close HWSerial
+  Close();
 
   return ret;
 }
