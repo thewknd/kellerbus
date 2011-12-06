@@ -2,6 +2,7 @@
 This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported License. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/3.0/ or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
 */
 
+#include <kellerbus.h>
 
 CKellerBus::CKellerBus(HardwareSerial* mComm, unsigned long pBaudrate,unsigned char RTS){
   
@@ -35,7 +36,12 @@ unsigned short CKellerBus::initDevice(unsigned char Device)
 {
   unsigned short ret;
   unsigned long b=0;
-    // Clear RxBuffer;
+  
+    // Clear TxBuffer;
+  for(b = 0; b < COMM_TX_MAX; b++) {
+    TxBuffer[b] = 0;
+  }
+  
   Open();
   cDevice = Device;
   TxBuffer[0] = cDevice;
@@ -72,9 +78,18 @@ unsigned short CKellerBus::initDevice(unsigned char Device)
 unsigned short CKellerBus::initDevice() 
 {
   unsigned short ret;
+  unsigned long b=0;
+  
+// Clear TxBuffer;
+  for(b = 0; b < COMM_TX_MAX; b++) {
+    TxBuffer[b] = 0;
+  }
+  
   Open();
   TxBuffer[0] = cDevice;
   TxBuffer[1] = 0b01111111 & 48;
+  
+
   
   if(TransferData(2,10) == COMM_OK) {
     cClass = RxBuffer[2];
@@ -107,6 +122,13 @@ unsigned short CKellerBus::initDevice()
 unsigned short CKellerBus::readSerialnumber() 
 {
   unsigned short ret;
+  unsigned long b=0;
+  
+    // Clear TxBuffer;
+  for(b = 0; b < COMM_TX_MAX; b++) {
+    TxBuffer[b] = 0;
+  }
+  
   Open();
   TxBuffer[0] = cDevice;
   TxBuffer[1] = 0b01111111 & 69;
@@ -125,6 +147,12 @@ unsigned short CKellerBus::readChannel(unsigned char Channel)
   unsigned char bteArr[4];
   float value;
   unsigned short ret;
+  unsigned long b=0;
+  
+	// Clear TxBuffer;
+  for(b = 0; b < COMM_TX_MAX; b++) {
+    TxBuffer[b] = 0;
+  }
   
   Open();
   
@@ -194,13 +222,13 @@ int CKellerBus::TransferData(unsigned short nTX, unsigned short nRX)
   // End CRC16
   
   digitalWrite(RTS_PIN,HIGH);
-  delay(2);
+  delay(5);
   Comm->write(TxBuffer,nTX + 2);
-  delay(2);
+  delay(5);
   digitalWrite(RTS_PIN,LOW);  
-    
+  delay(5);  
   delay_cnt = 0;
-    
+  b = 0;  
   do {
     if (Comm->available() > 0) {
       RxBuffer[b] = Comm->read(); 
@@ -209,13 +237,16 @@ int CKellerBus::TransferData(unsigned short nTX, unsigned short nRX)
     delay(1);  
     delay_cnt += 1;   
   } while(delay_cnt <= Timeout); // timeout max 105ms
-  delay(2);
+ 
+
   
   if(b == nRX) {
     ret = COMM_OK;             
   } else {
     ret = COMM_ERR_BAD_CRC;   
   }
+
+  delay(25);
 
   return ret;
 }
