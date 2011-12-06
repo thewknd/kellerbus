@@ -2,7 +2,6 @@
 This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported License. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/3.0/ or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
 */
 
-#include "kellerbus.h"
 
 CKellerBus::CKellerBus(HardwareSerial* mComm, unsigned long pBaudrate,unsigned char RTS){
   
@@ -35,6 +34,8 @@ unsigned short CKellerBus::Open()
 unsigned short CKellerBus::initDevice(unsigned char Device) 
 {
   unsigned short ret;
+  unsigned long b=0;
+    // Clear RxBuffer;
   Open();
   cDevice = Device;
   TxBuffer[0] = cDevice;
