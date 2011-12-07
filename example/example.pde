@@ -15,23 +15,21 @@ TOB1: 26.7539062500 C
 
 */
 
-#include "kellerbus.h"
+#include <kellerbus.h>
 
 CKellerBus kbus(&Serial1,9600,2);
 
 void setup() {
   
   Serial.begin(115200);
-  if(kbus.initDevice(250) != COMM_OK) {    
-    Serial.println("COMM ERROR");
-  }
+
 }
 
 void loop() {
   
   Serial.println("-- KELLERBUS --");
   
-  if(kbus.initDevice() == COMM_OK) { 
+  if(kbus.initDevice(250) == COMM_OK) { 
     Serial.print("TYPE: ");
     Serial.print(kbus.getClass(),DEC);
     Serial.print(".");
