@@ -27,14 +27,14 @@ CKellerBus::CKellerBus(HardwareSerial* mComm, unsigned long pBaudrate,unsigned c
   chTOB2 = -1;
   chT = -1;
 }
-unsigned short CKellerBus::Open()
+byte CKellerBus::Open()
 {
   Comm->begin(Baudrate);  
   return 1;
 }
-unsigned short CKellerBus::initDevice(unsigned char Device) 
+byte CKellerBus::initDevice(byte Device) 
 {
-  unsigned short ret;
+  byte ret;
   unsigned long b=0;
   
     // Clear TxBuffer;
@@ -74,9 +74,9 @@ unsigned short CKellerBus::initDevice(unsigned char Device)
 
   return ret;
 }
-unsigned short CKellerBus::initDevice() 
+byte CKellerBus::initDevice() 
 {
-  unsigned short ret;
+  byte ret;
   unsigned long b=0;
   
 // Clear TxBuffer;
@@ -115,9 +115,9 @@ unsigned short CKellerBus::initDevice()
 
   return ret;
 }
-unsigned short CKellerBus::readSerialnumber() 
+byte CKellerBus::readSerialnumber() 
 {
-  unsigned short ret;
+  byte ret;
   unsigned long b=0;
   
     // Clear TxBuffer;
@@ -137,11 +137,11 @@ unsigned short CKellerBus::readSerialnumber()
 
   return ret;
 }
-unsigned short CKellerBus::readChannel(unsigned char Channel)
+byte CKellerBus::readChannel(byte Channel)
 {
-  unsigned char bteArr[4];
+  byte bteArr[4];
   float value;
-  unsigned short ret;
+  byte ret;
   unsigned long b=0;
   
 	// Clear TxBuffer;
@@ -178,11 +178,11 @@ unsigned short CKellerBus::readChannel(unsigned char Channel)
 
   return ret;
 }
-int CKellerBus::TransferData(unsigned short nTX, unsigned short nRX) 
+byte CKellerBus::TransferData(byte nTX, byte nRX) 
 {
   unsigned int Crc; 
-  unsigned char n, m, x,delay_cnt;
-  int ret;
+  byte n, m, x,delay_cnt;
+  byte ret;
   unsigned long b=0;
   
   // Clear RxBuffer;
@@ -220,7 +220,7 @@ int CKellerBus::TransferData(unsigned short nTX, unsigned short nRX)
   digitalWrite(RTS_PIN,HIGH);
   delay(3);
   
-  Comm->write(TxBuffer,nTX + 2);
+  Comm->write(TxBuffer,(int)(nTX + 2));
   delay(5);
   
   digitalWrite(RTS_PIN,LOW);  
@@ -251,25 +251,25 @@ int CKellerBus::TransferData(unsigned short nTX, unsigned short nRX)
   return ret;
 }
 
-unsigned char CKellerBus::getClass() {
+byte CKellerBus::getClass() {
   return cClass;
 }
-unsigned char CKellerBus::getGroup() {
+byte CKellerBus::getGroup() {
   return cGroup;
 }
-unsigned char CKellerBus::getYear() {
+byte CKellerBus::getYear() {
   return cYear;
 }
-unsigned char CKellerBus::getWeek() {
+byte CKellerBus::getWeek() {
   return cWeek;
 }
-unsigned char CKellerBus::getBuffer() {
+byte CKellerBus::getBuffer() {
   return cBuffer;
 }
-unsigned char CKellerBus::getState() {
+byte CKellerBus::getState() {
   return cState;
 }
-unsigned char CKellerBus::getDevice() {
+byte CKellerBus::getDevice() {
   return cDevice;
 }
 float CKellerBus::getCH0() {
@@ -293,7 +293,7 @@ float CKellerBus::getT() {
 unsigned long CKellerBus::getSerialnumber() {
   return Serialnumber;
 }
-unsigned short CKellerBus::Close()
+byte CKellerBus::Close()
 {
   Comm->end();
   delay(2);  

@@ -21,28 +21,28 @@ class CKellerBus
   private:
     HardwareSerial *Comm;
     unsigned long Baudrate;
-    unsigned char RTS_PIN;
-    unsigned short Timeout;
+    byte RTS_PIN;
+    byte Timeout;
     
     
-    unsigned char TxBuffer[COMM_TX_MAX];
-    unsigned char RxBuffer[COMM_TX_MAX + COMM_RX_MAX];
+    byte TxBuffer[COMM_TX_MAX];
+    byte RxBuffer[COMM_TX_MAX + COMM_RX_MAX];
     
-    unsigned short Open();
-    unsigned short Close();
+    byte Open();
+    byte Close();
     
-    int TransferData(unsigned short nTX, unsigned short nRX);
+    byte TransferData(byte nTX, byte nRX);
     
-    unsigned char cClass;
-    unsigned char cGroup;
-    unsigned char cYear;
-    unsigned char cWeek;
-    unsigned char cBuffer;
-    unsigned char cState;
+    byte cClass;
+    byte cGroup;
+    byte cYear;
+    byte cWeek;
+    byte cBuffer;
+    byte cState;
     
     unsigned long Serialnumber;
     
-    unsigned char cDevice;
+    byte cDevice;
     
     float ch0;
     float chP1;
@@ -54,20 +54,20 @@ class CKellerBus
     
   public:
     
-    CKellerBus(HardwareSerial* mComm, unsigned long pBaudrate, unsigned char RTS);
+    CKellerBus(HardwareSerial* mComm, unsigned long pBaudrate, byte RTS);
     
-    unsigned short initDevice();
-    unsigned short initDevice(unsigned char Device);
-    unsigned short readChannel(unsigned char Channel);
-    unsigned short readSerialnumber();
+    byte initDevice();
+    byte initDevice(byte Device);
+    byte readChannel(byte Channel);
+    byte readSerialnumber();
      
-    unsigned char getClass();
-    unsigned char getGroup();
-    unsigned char getYear();
-    unsigned char getWeek();
-    unsigned char getBuffer();
-    unsigned char getState();
-    unsigned char getDevice();
+    byte getClass();
+    byte getGroup();
+    byte getYear();
+    byte getWeek();
+    byte getBuffer();
+    byte getState();
+    byte getDevice();
     unsigned long getSerialnumber();
     
     float getCH0();
