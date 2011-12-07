@@ -74,47 +74,6 @@ byte CKellerBus::initDevice(byte Device)
 
   return ret;
 }
-byte CKellerBus::initDevice() 
-{
-  byte ret;
-  unsigned long b=0;
-  
-// Clear TxBuffer;
-  for(b = 0; b < COMM_TX_MAX; b++) {
-    TxBuffer[b] = 0;
-  }
-  
-  TxBuffer[0] = cDevice;
-  TxBuffer[1] = 0b01111111 & 48;
-    
-  if(TransferData(2,10) == COMM_OK) {
-    cClass = RxBuffer[2];
-    cGroup = RxBuffer[3];
-    cYear = RxBuffer[4];
-    cWeek = RxBuffer[5];
-    cBuffer = RxBuffer[6];
-    cState = RxBuffer[7];
-    ret = COMM_OK;
-  } else {
-      // 2nd try for sleeping dcx
-      delay(5);
-      TxBuffer[0] = cDevice;
-      TxBuffer[1] = 0b01111111 & 48;
-      if(TransferData(2,10) == COMM_OK) {
-      cClass = RxBuffer[2];
-      cGroup = RxBuffer[3];
-      cYear = RxBuffer[4];
-      cWeek = RxBuffer[5];
-      cBuffer = RxBuffer[6];
-      cState = RxBuffer[7];
-      ret = COMM_OK;
-    } else {
-      ret = COMM_ERR_BAD_CRC;
-    }
-  }
-
-  return ret;
-}
 byte CKellerBus::readSerialnumber() 
 {
   byte ret;

@@ -52,11 +52,9 @@ class CKellerBus
     float chT;
     
     
-  public:
-    
+  public:  
     CKellerBus(HardwareSerial* mComm, unsigned long pBaudrate, byte RTS);
     
-    byte initDevice();
     byte initDevice(byte Device);
     byte readChannel(byte Channel);
     byte readSerialnumber();
