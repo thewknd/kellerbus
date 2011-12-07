@@ -27,11 +27,7 @@ CKellerBus::CKellerBus(HardwareSerial* mComm, unsigned long pBaudrate,unsigned c
   chTOB2 = -1;
   chT = -1;
 }
-byte CKellerBus::Open()
-{
-  Comm->begin(Baudrate);  
-  return 1;
-}
+
 byte CKellerBus::initDevice(byte Device) 
 {
   byte ret;
@@ -74,6 +70,7 @@ byte CKellerBus::initDevice(byte Device)
 
   return ret;
 }
+
 byte CKellerBus::readSerialnumber() 
 {
   byte ret;
@@ -96,6 +93,7 @@ byte CKellerBus::readSerialnumber()
 
   return ret;
 }
+
 byte CKellerBus::readChannel(byte Channel)
 {
   byte bteArr[4];
@@ -137,6 +135,7 @@ byte CKellerBus::readChannel(byte Channel)
 
   return ret;
 }
+
 byte CKellerBus::TransferData(byte nTX, byte nRX) 
 {
   unsigned int Crc; 
@@ -213,45 +212,65 @@ byte CKellerBus::TransferData(byte nTX, byte nRX)
 byte CKellerBus::getClass() {
   return cClass;
 }
+
 byte CKellerBus::getGroup() {
   return cGroup;
 }
+
 byte CKellerBus::getYear() {
   return cYear;
 }
+
 byte CKellerBus::getWeek() {
   return cWeek;
 }
+
 byte CKellerBus::getBuffer() {
   return cBuffer;
 }
+
 byte CKellerBus::getState() {
   return cState;
 }
+
 byte CKellerBus::getDevice() {
   return cDevice;
 }
+
 float CKellerBus::getCH0() {
   return ch0;
 }
+
 float CKellerBus::getP1() {
   return chP1;
 }
+
 float CKellerBus::getP2() {
   return chP2;
 }
+
 float CKellerBus::getTOB1() {
   return chTOB1;
 }
+
 float CKellerBus::getTOB2() {
   return chTOB2;
 }
+
 float CKellerBus::getT() {
   return chT;
 }
+
 unsigned long CKellerBus::getSerialnumber() {
   return Serialnumber;
 }
+
+byte CKellerBus::Open()
+{
+  Comm->begin(Baudrate);  
+  return 1;
+}
+
 byte CKellerBus::Close()
 {
   Comm->end();
