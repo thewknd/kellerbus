@@ -16,6 +16,13 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 #define MAX_CHANNELS                32
 #define MAX_UNITS                   15
 
+#define CH_0							0
+#define CH_P1							1
+#define CH_P2							2
+#define CH_T							3
+#define CH_TOB1							4
+#define CH_TOB2							5
+
 class CKellerBus
 {
   private:
@@ -57,6 +64,12 @@ class CKellerBus
     
     byte initDevice(byte Device);
     byte readChannel(byte Channel);
+    byte readChannelCH0();
+    byte readChannelP1();
+    byte readChannelP2();
+    byte readChannelT();
+    byte readChannelTOB1();
+    byte readChannelTOB2();
     byte readSerialnumber();
      
     byte getClass();

@@ -136,6 +136,36 @@ byte CKellerBus::readChannel(byte Channel)
   return ret;
 }
 
+byte CKellerBus::readChannelCH0()
+{
+	return(readChannel(CH_0));
+}
+
+byte CKellerBus::readChannelP1()
+{
+	return(readChannel(CH_P1));
+}
+
+byte CKellerBus::readChannelP2()
+{
+	return(readChannel(CH_P2));
+}
+
+byte CKellerBus::readChannelT()
+{
+	return(readChannel(CH_T));
+}
+
+byte CKellerBus::readChannelTOB1()
+{
+	return(readChannel(CH_TOB1));
+}
+
+byte CKellerBus::readChannelTOB2() 
+{
+	return(readChannel(CH_TOB2));
+}
+
 byte CKellerBus::TransferData(byte nTX, byte nRX) 
 {
   unsigned int Crc; 
