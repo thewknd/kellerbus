@@ -13,19 +13,6 @@ CKellerBus::CKellerBus(HardwareSerial* mComm, unsigned long pBaudrate,unsigned c
   
   pinMode(RTS_PIN,OUTPUT);
   digitalWrite(RTS_PIN,LOW);
-  
-  cClass = -1;
-  cGroup = -1;
-  cYear = -1;
-  cWeek = -1;
-  cBuffer = -1;
-  cState = -1;
-  ch0 = -1;
-  chP1 = -1;
-  chP2 = -1;
-  chTOB1 = -1;
-  chTOB2 = -1;
-  chT = -1;
 }
 
 byte CKellerBus::initDevice(byte Device) 
@@ -136,35 +123,10 @@ byte CKellerBus::readChannel(byte Channel)
   return ret;
 }
 
-byte CKellerBus::readChannelCH0()
-{
-	return(readChannel(CH_0));
-}
-
-byte CKellerBus::readChannelP1()
-{
-	return(readChannel(CH_P1));
-}
-
-byte CKellerBus::readChannelP2()
-{
-	return(readChannel(CH_P2));
-}
-
-byte CKellerBus::readChannelT()
-{
-	return(readChannel(CH_T));
-}
-
-byte CKellerBus::readChannelTOB1()
-{
-	return(readChannel(CH_TOB1));
-}
-
-byte CKellerBus::readChannelTOB2() 
-{
-	return(readChannel(CH_TOB2));
-}
+//################## TransferData ###################
+// Takes:   length of data and response
+// Returns: status
+// Effect:  Transfer Data to client, recieve response
 
 byte CKellerBus::TransferData(byte nTX, byte nRX) 
 {
@@ -220,9 +182,11 @@ byte CKellerBus::TransferData(byte nTX, byte nRX)
     if (Comm->available() > 0) {
       RxBuffer[b] = Comm->read(); 
       b++;
-    }      
-    delay(1);  
-    delay_cnt += 1;   
+      delay_cnt = 0;
+    } else {     
+    	delay(1);  
+    	delay_cnt += 1;
+    }   
   } while(delay_cnt <= Timeout); // timeout max 105ms
  
 
@@ -239,61 +203,82 @@ byte CKellerBus::TransferData(byte nTX, byte nRX)
   return ret;
 }
 
+
 byte CKellerBus::getClass() {
   return cClass;
 }
+
 
 byte CKellerBus::getGroup() {
   return cGroup;
 }
 
+
 byte CKellerBus::getYear() {
   return cYear;
 }
+
 
 byte CKellerBus::getWeek() {
   return cWeek;
 }
 
+
 byte CKellerBus::getBuffer() {
   return cBuffer;
 }
+
 
 byte CKellerBus::getState() {
   return cState;
 }
 
+
 byte CKellerBus::getDevice() {
   return cDevice;
 }
 
+
 float CKellerBus::getCH0() {
+	readChannel(CH_0);
   return ch0;
 }
 
-float CKellerBus::getP1() {
-  return chP1;
+
+float CKellerBus::getP1(byte unit) {
+	readChannel(CH_P1);		
+  return pressureConversion(chP1,unit);
 }
 
-float CKellerBus::getP2() {
-  return chP2;
+
+float CKellerBus::getP2(byte unit) {
+	readChannel(CH_P2);
+  return pressureConversion(chP2,unit);
 }
 
-float CKellerBus::getTOB1() {
-  return chTOB1;
+
+float CKellerBus::getTOB1(byte unit) {
+	readChannel(CH_TOB1);
+  return temperatureConversion(chTOB1,unit);
 }
 
-float CKellerBus::getTOB2() {
-  return chTOB2;
+
+float CKellerBus::getTOB2(byte unit) {
+	readChannel(CH_TOB2);
+  return temperatureConversion(chTOB2,unit);
 }
 
-float CKellerBus::getT() {
-  return chT;
+
+float CKellerBus::getT(byte unit) {
+	readChannel(CH_T);
+  return temperatureConversion(chT,unit);
 }
+
 
 unsigned long CKellerBus::getSerialnumber() {
   return Serialnumber;
 }
+
 
 byte CKellerBus::Open()
 {
@@ -301,10 +286,100 @@ byte CKellerBus::Open()
   return 1;
 }
 
+
 byte CKellerBus::Close()
 {
   Comm->end();
   delay(2);  
   
   return 1;
+}
+
+
+float CKellerBus::pressureConversion(float sValue, byte targetUnit) {
+	
+	float pValue;
+	
+	switch (targetUnit) {
+	
+		case P_BAR :
+		default :
+			pValue = sValue;
+			break;
+			
+		case 1 : // mBar and hPa 					
+			pValue = sValue * 1000;
+			break;
+
+		case P_PSI :
+			pValue = sValue * 14.503773773;
+			break;
+			
+		case P_PA :
+			pValue = sValue * 100000;
+			break;
+		
+		case P_KPA :
+			pValue = sValue * 100;
+			break;
+				
+		case P_MPA :
+			pValue = sValue / 10;
+			break;
+			
+		case 6 : // mH2O, mWs, m.Wg
+			pValue = sValue;
+			break;
+			
+		case P_INHG :
+			pValue = sValue * 1;
+			break;
+			
+		case 8 : // Torr and mmHg
+			pValue = sValue * 750.061682704;
+			break;
+			
+		case P_INH2O :
+			pValue = sValue * 1;
+			break;
+			
+		case P_FTH2O :
+			pValue = sValue * 33.46;
+			break;	
+	}
+	
+  return pValue;
+}
+
+/*
+*
+*
+*
+*/
+
+float CKellerBus::temperatureConversion(float sValue, byte targetUnit) {
+	
+	float tValue;
+	
+	switch (targetUnit) {
+	
+		case T_DEGC :
+		default :
+			tValue = sValue;
+			break;
+			
+		case T_DEGK :					
+			tValue = sValue + 273.15;
+			break;
+
+		case T_DEGF :
+			tValue = (sValue * 1.8) + 32;
+			break;
+			
+		case T_DEGR :
+			tValue = (sValue + 273.15) * 1.8;
+			break;
+	}
+	
+  return tValue;
 }

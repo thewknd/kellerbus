@@ -7,7 +7,7 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 #ifndef _H_KELLERBUS
 #define _H_KELLERBUS
 
-#define COMM_ERR_BAD_CRC           -4
+#define COMM_ERR_BAD_CRC           	-4
 #define COMM_OK                     0
 
 #define COMM_TX_MAX                 20
@@ -16,12 +16,34 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 #define MAX_CHANNELS                32
 #define MAX_UNITS                   15
 
-#define CH_0							0
-#define CH_P1							1
-#define CH_P2							2
-#define CH_T							3
-#define CH_TOB1							4
-#define CH_TOB2							5
+#define P_BAR												0 		// Bar
+#define P_MBAR											1 		// mBar
+#define P_PSI												2 		// Psi
+#define P_PA												3 		// Pascal
+#define P_HPA												1 		// hPascal
+#define P_KPA												4 		// kPascal
+#define P_MPA												5 		// MPascal
+#define P_MH2O											6 		// mH2O
+#define P_MWS												6 		// mWs Meter Wassersäule
+#define P_MWG												6 		// mWg meters, water gauge
+#define P_INHG											7 		// inHg
+#define P_MMHG											8 		// mmHg
+#define P_INH2O											9 		// inH2O
+#define P_TORR											8 		// Torr
+#define P_FTH2O											10		// ftH2O
+
+
+#define T_DEGC											0			// °C Celsius
+#define T_DEGK											1			// °K Kelvin
+#define T_DEGF											2			// °F Fahreinheit
+#define T_DEGR											3			// °R Rankine
+
+#define CH_0												0
+#define CH_P1												1
+#define CH_P2												2
+#define CH_T												3
+#define CH_TOB1											4
+#define CH_TOB2											5
 
 class CKellerBus
 {
@@ -39,6 +61,9 @@ class CKellerBus
     byte Close();
     
     byte TransferData(byte nTX, byte nRX);
+    byte readChannel(byte Channel = CH_P1);
+    float pressureConversion(float sValue, byte targetUnit = P_BAR);
+    float temperatureConversion(float sValue, byte targetUnit = T_DEGC);
     
     byte cClass;
     byte cGroup;
@@ -63,13 +88,7 @@ class CKellerBus
     CKellerBus(HardwareSerial* mComm, unsigned long pBaudrate, byte RTS);
     
     byte initDevice(byte Device);
-    byte readChannel(byte Channel);
-    byte readChannelCH0();
-    byte readChannelP1();
-    byte readChannelP2();
-    byte readChannelT();
-    byte readChannelTOB1();
-    byte readChannelTOB2();
+    
     byte readSerialnumber();
      
     byte getClass();
@@ -82,10 +101,10 @@ class CKellerBus
     unsigned long getSerialnumber();
     
     float getCH0();
-    float getP1();
-    float getP2();
-    float getTOB1();
-    float getTOB2();
-    float getT();    
+    float getP1(byte unit = P_BAR);
+    float getP2(byte unit = P_BAR);
+    float getTOB1(byte unit = T_DEGC);
+    float getTOB2(byte unit = T_DEGC);
+    float getT(byte unit = T_DEGC);    
 };
 #endif

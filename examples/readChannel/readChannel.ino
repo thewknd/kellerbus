@@ -5,14 +5,6 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 
 readChannel.pde
 
-output:
-
--- KELLERBUS --
-TYPE: 5.5-7.6
-SN  : 127812
-P1  : 0.9669585227 bar
-TOB1: 26.7539062500 C
-
 */
 
 #include <kellerbus.h>
@@ -27,7 +19,7 @@ void setup() {
 
 void loop() {
   
-  Serial.println("-- KELLERBUS --");
+  Serial.println("\n-- KELLERBUS --");
   
   if(kbus.initDevice(250) == COMM_OK) { 
     Serial.print("TYPE: ");
@@ -48,22 +40,30 @@ void loop() {
   } else {
     Serial.println("COMM ERROR");
   }
+  Serial.println(" - - - - - - - -");
+  Serial.println("P1  : ");
+  Serial.print(kbus.getP1(),DEC);
+  Serial.println(" bar");
+  Serial.print(kbus.getP1(P_PSI),DEC);
+  Serial.println(" psi");
+  Serial.print(kbus.getP1(P_TORR),DEC);
+  Serial.println(" Torr");
+  Serial.print(kbus.getP1(P_HPA),DEC);
+  Serial.println(" hPa");
   
-  if(kbus.readChannelP1() == COMM_OK) {
-    Serial.print("P1  : ");
-    Serial.print(kbus.getP1(),DEC);
-    Serial.println(" bar");
-  } else {
-    Serial.println("COMM ERROR");
-  }
-
-  if(kbus.readChannelTOB1() == COMM_OK) {
-    Serial.print("TOB1: ");
-    Serial.print(kbus.getTOB1(),DEC);
-    Serial.println(" C");
-  } else {
-    Serial.println("COMM ERROR");
-  }
   
-  delay(1000);
+  Serial.println(" - - - - - - - -");
+  
+  Serial.println("TOB1: ");
+  
+  Serial.print(kbus.getTOB1(T_DEGC),DEC);
+  Serial.println(" C");
+  Serial.print(kbus.getTOB1(T_DEGK),DEC);
+  Serial.println(" K");
+  Serial.print(kbus.getTOB1(T_DEGF),DEC);
+  Serial.println(" F");
+  Serial.print(kbus.getTOB1(T_DEGR),DEC);
+  Serial.println(" R");
+  
+  delay(10000);
 }
