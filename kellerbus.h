@@ -3,6 +3,7 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 */
 
 #include <Arduino.h>
+#include <CRC16.h>
 
 #ifndef _H_KELLERBUS
 #define _H_KELLERBUS
@@ -49,11 +50,13 @@ class CKellerBus
 {
   private:
     HardwareSerial *Comm;
-    unsigned long Baudrate;
+    
+    CRC checksum;
+    
+    int baudrate;
     byte RTS_PIN;
-    byte Timeout;
-    
-    
+    byte timeout;
+        
     byte TxBuffer[COMM_TX_MAX];
     byte RxBuffer[COMM_TX_MAX + COMM_RX_MAX];
     
@@ -74,7 +77,7 @@ class CKellerBus
     
     unsigned long Serialnumber;
     
-    byte cDevice;
+    byte device;
     
     float ch0;
     float chP1;
@@ -85,9 +88,9 @@ class CKellerBus
     
     
   public:  
-    CKellerBus(HardwareSerial* mComm, unsigned long pBaudrate, byte RTS);
+    CKellerBus(HardwareSerial* _comm, int _baudrate, byte _rts, int _timeout);
     
-    byte initDevice(byte Device);
+    byte initDevice(byte _device);
     
     byte readSerialnumber();
      

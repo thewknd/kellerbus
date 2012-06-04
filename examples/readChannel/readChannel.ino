@@ -9,7 +9,7 @@ readChannel.pde
 
 #include <kellerbus.h>
 
-CKellerBus kbus(&Serial1,9600,2);
+CKellerBus kbus(&Serial1,9600,5,100);
 
 void setup() {
   
