@@ -3,7 +3,7 @@
 This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported License. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/3.0/ or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
 
 
-example.pde
+readChannel.pde
 
 output:
 
@@ -22,7 +22,7 @@ CKellerBus kbus(&Serial1,9600,2);
 void setup() {
   
   Serial.begin(115200);
-
+  while (!Serial) ;
 }
 
 void loop() {

@@ -1,0 +1,48 @@
+#######################################
+# Syntax Coloring Map kellerbus
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+initDevice	KEYWORD2
+readChannel	KEYWORD2
+readChannelCH0	KEYWORD2
+readChannelP1	KEYWORD2
+readChannelP2	KEYWORD2
+readChannelT	KEYWORD2
+readChannelTOB1	KEYWORD2
+readChannelTOB2	KEYWORD2
+readSerialnumber	KEYWORD2
+     
+getClass	KEYWORD2
+getGroup	KEYWORD2
+getYear	KEYWORD2
+getWeek	KEYWORD2
+getBuffer	KEYWORD2
+getState	KEYWORD2
+getDevice	KEYWORD2
+getSerialnumber	KEYWORD2
+    
+getCH0	KEYWORD2
+getP1	KEYWORD2
+getP2	KEYWORD2
+getTOB1	KEYWORD2
+getTOB2	KEYWORD2
+getT	KEYWORD2
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+
+CKellerBus	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
