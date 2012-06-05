@@ -23,13 +23,30 @@ void CKellerBus::initDevice(uint8_t _device)
   TxBuffer[1] = 0b01111111 & 48;
   
   TransferData(2,10);
+  if (Error != COMM_OK) {
+      // 2nd try for sleeping dcx
+    delay(30);
+    TxBuffer[0] = device;
+    TxBuffer[1] = 0b01111111 & 48;
+    TransferData(2,10);
+  }
+}
+
+void CKellerBus::initDevice(uint8_t _device, uint8_t* _class, uint8_t* _group, uint8_t* _year, uint8_t* _week, uint8_t* _buffer, uint8_t* _state) 
+{
+  
+  device = _device;
+  TxBuffer[0] = device;
+  TxBuffer[1] = 0b01111111 & 48;
+  
+  TransferData(2,10);
   if (Error == COMM_OK) {
-    cClass = RxBuffer[2];
-    cGroup = RxBuffer[3];
-    cYear = RxBuffer[4];
-    cWeek = RxBuffer[5];
-    cBuffer = RxBuffer[6];
-    cState = RxBuffer[7];
+    *_class = RxBuffer[2];
+    *_group = RxBuffer[3];
+    *_year = RxBuffer[4];
+    *_week = RxBuffer[5];
+    *_buffer = RxBuffer[6];
+    *_state = RxBuffer[7];
   } else {
       // 2nd try for sleeping dcx
     delay(30);
@@ -37,12 +54,12 @@ void CKellerBus::initDevice(uint8_t _device)
     TxBuffer[1] = 0b01111111 & 48;
     TransferData(2,10);
     if (Error == COMM_OK) {
-      cClass = RxBuffer[2];
-      cGroup = RxBuffer[3];
-      cYear = RxBuffer[4];
-      cWeek = RxBuffer[5];
-      cBuffer = RxBuffer[6];
-      cState = RxBuffer[7];
+      *_class = RxBuffer[2];
+      *_group = RxBuffer[3];
+      *_year = RxBuffer[4];
+      *_week = RxBuffer[5];
+      *_buffer = RxBuffer[6];
+      *_state = RxBuffer[7];
     } 
   }
 }
@@ -50,7 +67,7 @@ void CKellerBus::initDevice(uint8_t _device)
 //################## getSerialnumber ###################
 // Takes:   nothing
 // Returns: Serialnumber
-// Effect:  Reads the serialnumber out of the transducer
+// Effect:  Reads the serialnumber out of the device
 
 uint32_t CKellerBus::getSerialnumber() 
 {
@@ -58,40 +75,38 @@ uint32_t CKellerBus::getSerialnumber()
   TxBuffer[1] = 0b01111111 & 69;
   
   TransferData(2,8);
-  Serialnumber = 256*65536*(unsigned long)RxBuffer[2] + 65536*(unsigned long)RxBuffer[3] + 256*(unsigned long)RxBuffer[4] + (unsigned long)RxBuffer[5];
   
-  return Serialnumber;
+  // Serialnumber calculation, see keller s30 protocol documentation
+  return 256*65536*(unsigned long)RxBuffer[2] + 65536*(unsigned long)RxBuffer[3] + 256*(unsigned long)RxBuffer[4] + (unsigned long)RxBuffer[5];
 }
 
 
-void CKellerBus::readChannel(uint8_t Channel)
+float CKellerBus::readChannel(uint8_t Channel)
 {
   uint8_t bteArr[4];
   float value;
+  if ((Channel < MAX_CHANNELS) && (Channel >= 0) ) {
   
-  TxBuffer[0] = device;
-  TxBuffer[1] = 0b01111111 & 73;
-  TxBuffer[2] = Channel;
-  TransferData(3,9);
-    
-  bteArr[0] = RxBuffer[5];
-  bteArr[1] = RxBuffer[4];
-  bteArr[2] = RxBuffer[3];
-  bteArr[3] = RxBuffer[2];
-   
-  value = *(float*)(&bteArr[0]);
-  
-  switch(Channel) {
-    case 0: ch0 = value; break;
-    case 1: chP1 = value; break;  
-    case 2: chP2 = value; break;  
-    case 4: chTOB1 = value; break;  
-    case 5: chTOB2 = value; break;  
-    case 3: chT = value; break;  
-    default:break;   
+	  
+	  // Prepare TxBuffer
+	  TxBuffer[0] = device;
+	  TxBuffer[1] = 0b01111111 & 73;
+	  TxBuffer[2] = Channel;
+	  
+	  TransferData(3,9);
+	    
+	  bteArr[0] = RxBuffer[5];
+	  bteArr[1] = RxBuffer[4];
+	  bteArr[2] = RxBuffer[3];
+	  bteArr[3] = RxBuffer[2];
+	  
+	  return *(float*)(&bteArr[0]);
   }
-   
-}
+  else {
+		Error = SW_INVALIDPARAM;
+		return -1;  
+  }
+}  
 
 //################## TransferData ###################
 // Takes:   length of data and response
@@ -106,32 +121,42 @@ void CKellerBus::TransferData(uint8_t nTX, uint8_t nRX)
 
   // Open HWSerial
   Open();
+  
+  // Set Ready to send to High
   digitalWrite(RTS_PIN,HIGH);
-  delay(2);
+  delay(1);
   
   // Calculate CRC16
   Crc = checksum.CRC16(TxBuffer,nTX);
   TxBuffer[nTX]= (Crc>>8)&0xFF; 
   TxBuffer[nTX+1]= Crc&0xFF;  
   
-  Comm->write(TxBuffer,(int)(nTX + 2));
-  delay(6);
+  // Write the TxBuffer
+  if (Comm->write(TxBuffer,(int)(nTX + 2)) != (nTX + 2)) {
+	  // Wrong amount if transmitted bytes
+	  Error = TX_ERROR;
+  }
+  delay(5);
   
+  // Set Ready to send to Low
   digitalWrite(RTS_PIN,LOW);  
-  delay(3);  
+  delay(1);  
   
   b = 0;  
   startTimeout = millis();
   do {
-    if (Comm->available() > 0) {
+    while (Comm->available() > 0) {
+      // store the incoming byte in the RxBuffer
       RxBuffer[b] = Comm->read(); 
       b++;
       startTimeout = millis();
     } 
     now = millis();  
-  } while((startTimeout + timeout >= now ) && (b < nRX)); // timeout max 105ms
+  } while((startTimeout + timeout >= now ) && (b < nRX)); // Timeout calculation
   
-  if (b == nRX) {
+  if (Error == TX_ERROR) {
+  
+  } else if (b == nRX) {
     Error = COMM_OK;             
   } else if (now > startTimeout + timeout) {
 	  Error = RS_TIMEOUT;
@@ -144,81 +169,39 @@ void CKellerBus::TransferData(uint8_t nTX, uint8_t nRX)
 }
 
 
-uint8_t CKellerBus::getClass() 
-{
-  return cClass;
-}
-
-uint8_t CKellerBus::getGroup() 
-{
-  return cGroup;
-}
-
-uint8_t CKellerBus::getYear() 
-{
-  return cYear;
-}
-
-uint8_t CKellerBus::getWeek() 
-{
-  return cWeek;
-}
-
-uint8_t CKellerBus::getBuffer() 
-{
-  return cBuffer;
-}
-
-uint8_t CKellerBus::getState() 
-{
-  return cState;
-}
-
-uint8_t CKellerBus::getDevice() 
-{
-  return device;
-}
-
-
 float CKellerBus::getCH0() 
 {
-	readChannel(CH_0);
-  return ch0;
+  return readChannel(CH_0);
 }
 
 
-float CKellerBus::getP1(byte unit) 
-{
-	readChannel(CH_P1);		
-  return pressureConversion(chP1,unit);
+float CKellerBus::getP1(uint8_t unit) 
+{	
+  return pressureConversion(readChannel(CH_P1),unit);
 }
 
 
-float CKellerBus::getP2(byte unit) 
+float CKellerBus::getP2(uint8_t unit) 
 {
-	readChannel(CH_P2);
-  return pressureConversion(chP2,unit);
+  return pressureConversion(readChannel(CH_P2),unit);
 }
 
 
-float CKellerBus::getTOB1(byte unit) 
+float CKellerBus::getTOB1(uint8_t unit) 
 {
-	readChannel(CH_TOB1);
-  return temperatureConversion(chTOB1,unit);
+  return temperatureConversion(readChannel(CH_TOB1),unit);
 }
 
 
-float CKellerBus::getTOB2(byte unit) 
+float CKellerBus::getTOB2(uint8_t unit) 
 {
-	readChannel(CH_TOB2);
-  return temperatureConversion(chTOB2,unit);
+  return temperatureConversion(readChannel(CH_TOB2),unit);
 }
 
 
 float CKellerBus::getT(uint8_t unit) 
 {
-	readChannel(CH_T);
-  return temperatureConversion(chT,unit);
+  return temperatureConversion(readChannel(CH_T),unit);
 }
 
 
@@ -270,7 +253,7 @@ float CKellerBus::pressureConversion(float sValue, uint8_t targetUnit)
 			break;
 			
 		case 6 : // mH2O, mWs, m.Wg
-			pValue = sValue;
+			pValue = sValue * 1;
 			break;
 			
 		case P_INHG :

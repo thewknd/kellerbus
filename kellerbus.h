@@ -11,13 +11,12 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 #define RS_ERROR 										-1
 #define RS_TIMEOUT          				-4
 #define RS_BADDATA 									-5
+#define SW_INVALIDPARAM							-6
+#define TX_ERROR										-7
 #define COMM_OK                     0
 
 #define COMM_TX_MAX                 20
 #define COMM_RX_MAX                 260
-
-#define MAX_CHANNELS                32
-#define MAX_UNITS                   15
 
 #define P_BAR												0 		// Bar
 #define P_MBAR											1 		// mBar
@@ -35,11 +34,12 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 #define P_TORR											8 		// Torr
 #define P_FTH2O											10		// ftH2O
 
-
 #define T_DEGC											0			// °C Celsius
 #define T_DEGK											1			// °K Kelvin
 #define T_DEGF											2			// °F Fahreinheit
 #define T_DEGR											3			// °R Rankine
+
+#define MAX_CHANNELS                6
 
 #define CH_0												0
 #define CH_P1												1
@@ -61,47 +61,25 @@ class CKellerBus
         
     uint8_t TxBuffer[COMM_TX_MAX];
     uint8_t RxBuffer[COMM_TX_MAX + COMM_RX_MAX];
+
+    uint8_t Error;
+    
+    uint8_t device;
     
     void Open();
     void Close();
     
     void TransferData(uint8_t, uint8_t);
-    void readChannel(uint8_t);
+    float readChannel(uint8_t);
     float pressureConversion(float, uint8_t);
     float temperatureConversion(float, uint8_t);
-    
-    uint8_t Error;
-    
-    uint8_t cClass;
-    uint8_t cGroup;
-    uint8_t cYear;
-    uint8_t cWeek;
-    uint8_t cBuffer;
-    uint8_t cState;
-    
-    uint32_t Serialnumber;
-    
-    uint8_t device;
-    
-    float ch0;
-    float chP1;
-    float chP2;
-    float chTOB1;
-    float chTOB2;
-    float chT;
-    
-    
+     
   public:  
     CKellerBus(HardwareSerial*, uint16_t, uint8_t, uint16_t);
     
-    void initDevice(uint8_t);
-     
-    uint8_t getClass();
-    uint8_t getGroup();
-    uint8_t getYear();
-    uint8_t getWeek();
-    uint8_t getBuffer();
-    uint8_t getState();
+    void initDevice(uint8_t _device); 
+    void initDevice(uint8_t, uint8_t*, uint8_t*, uint8_t*, uint8_t*, uint8_t*, uint8_t*); 
+    
     uint8_t getDevice();
     uint32_t getSerialnumber();
     

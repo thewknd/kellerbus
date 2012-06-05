@@ -18,18 +18,18 @@ void setup() {
 }
 
 void loop() {
-  
+  uint8_t mclass,group,year,week;
   Serial.println("\n-- KELLERBUS --");
   
-  kbus.initDevice(250);
+  kbus.initDevice(250,&mclass,&group,&year,&week,0,0);
   Serial.print("TYPE: ");
-  Serial.print(kbus.getClass(),DEC);
+  Serial.print(mclass,DEC);
   Serial.print(".");
-  Serial.print(kbus.getGroup(),DEC);
+  Serial.print(group,DEC);
   Serial.print("-");
-  Serial.print(kbus.getYear(),DEC);
+  Serial.print(year,DEC);
   Serial.print(".");
-  Serial.println(kbus.getWeek(),DEC);
+  Serial.println(week,DEC);
 
   
   Serial.print("SN  : ");
