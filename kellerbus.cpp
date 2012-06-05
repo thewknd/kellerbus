@@ -4,8 +4,8 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 
 #include <kellerbus.h>
 
-CKellerBus::CKellerBus(HardwareSerial* _comm, uint16_t _baudrate, uint8_t _rts, uint16_t _timeout){
-  
+CKellerBus::CKellerBus(HardwareSerial* _comm, uint16_t _baudrate, uint8_t _rts, uint16_t _timeout)
+{
   baudrate = _baudrate;
   timeout = _timeout;
   Comm = _comm;
@@ -22,7 +22,8 @@ void CKellerBus::initDevice(uint8_t _device)
   TxBuffer[0] = device;
   TxBuffer[1] = 0b01111111 & 48;
   
-  if(TransferData(2,10) == COMM_OK) {
+  TransferData(2,10);
+  if (Error == COMM_OK) {
     cClass = RxBuffer[2];
     cGroup = RxBuffer[3];
     cYear = RxBuffer[4];
@@ -34,7 +35,8 @@ void CKellerBus::initDevice(uint8_t _device)
     delay(30);
     TxBuffer[0] = device;
     TxBuffer[1] = 0b01111111 & 48;
-    if(TransferData(2,10) == COMM_OK) {
+    TransferData(2,10);
+    if (Error == COMM_OK) {
       cClass = RxBuffer[2];
       cGroup = RxBuffer[3];
       cYear = RxBuffer[4];
@@ -55,9 +57,9 @@ uint32_t CKellerBus::getSerialnumber()
   TxBuffer[0] = device;
   TxBuffer[1] = 0b01111111 & 69;
   
-  if(TransferData(2,8) == COMM_OK) {
-    Serialnumber = 256*65536*(unsigned long)RxBuffer[2] + 65536*(unsigned long)RxBuffer[3] + 256*(unsigned long)RxBuffer[4] + (unsigned long)RxBuffer[5];
-  } 
+  TransferData(2,8);
+  Serialnumber = 256*65536*(unsigned long)RxBuffer[2] + 65536*(unsigned long)RxBuffer[3] + 256*(unsigned long)RxBuffer[4] + (unsigned long)RxBuffer[5];
+  
   return Serialnumber;
 }
 
@@ -70,25 +72,25 @@ void CKellerBus::readChannel(uint8_t Channel)
   TxBuffer[0] = device;
   TxBuffer[1] = 0b01111111 & 73;
   TxBuffer[2] = Channel;
-  if(TransferData(3,9) == COMM_OK) {
+  TransferData(3,9);
     
-    bteArr[0] = RxBuffer[5];
-    bteArr[1] = RxBuffer[4];
-    bteArr[2] = RxBuffer[3];
-    bteArr[3] = RxBuffer[2];
-     
-    value = *(float*)(&bteArr[0]);
-    
-    switch(Channel) {
-      case 0: ch0 = value; break;
-      case 1: chP1 = value; break;  
-      case 2: chP2 = value; break;  
-      case 4: chTOB1 = value; break;  
-      case 5: chTOB2 = value; break;  
-      case 3: chT = value; break;  
-      default:break;   
-    }
-  } 
+  bteArr[0] = RxBuffer[5];
+  bteArr[1] = RxBuffer[4];
+  bteArr[2] = RxBuffer[3];
+  bteArr[3] = RxBuffer[2];
+   
+  value = *(float*)(&bteArr[0]);
+  
+  switch(Channel) {
+    case 0: ch0 = value; break;
+    case 1: chP1 = value; break;  
+    case 2: chP2 = value; break;  
+    case 4: chTOB1 = value; break;  
+    case 5: chTOB2 = value; break;  
+    case 3: chT = value; break;  
+    default:break;   
+  }
+   
 }
 
 //################## TransferData ###################
@@ -96,13 +98,11 @@ void CKellerBus::readChannel(uint8_t Channel)
 // Returns: status
 // Effect:  Transfer Data to client, recieve response
 
-uint8_t CKellerBus::TransferData(uint8_t nTX, uint8_t nRX) 
+void CKellerBus::TransferData(uint8_t nTX, uint8_t nRX) 
 {
   uint16_t Crc; 
-  byte n, m, x;
-  uint8_t ret;
   uint16_t b=0;
-  uint32_t startTimeout;
+  uint32_t startTimeout,now;
 
   // Open HWSerial
   Open();
@@ -118,7 +118,7 @@ uint8_t CKellerBus::TransferData(uint8_t nTX, uint8_t nRX)
   delay(6);
   
   digitalWrite(RTS_PIN,LOW);  
-  delay(4);  
+  delay(3);  
   
   b = 0;  
   startTimeout = millis();
@@ -127,88 +127,96 @@ uint8_t CKellerBus::TransferData(uint8_t nTX, uint8_t nRX)
       RxBuffer[b] = Comm->read(); 
       b++;
       startTimeout = millis();
-    }   
-  } while((startTimeout + timeout >= millis() ) && (b < nRX)); // timeout max 105ms
+    } 
+    now = millis();  
+  } while((startTimeout + timeout >= now ) && (b < nRX)); // timeout max 105ms
   
-  if(b == nRX) {
-    ret = COMM_OK;             
+  if (b == nRX) {
+    Error = COMM_OK;             
+  } else if (now > startTimeout + timeout) {
+	  Error = RS_TIMEOUT;
   } else {
-    ret = COMM_ERR_BAD_CRC;   
+    Error = RS_ERROR;   
   }
   	
   // Close HWSerial
   Close();
-
-  return ret;
 }
 
 
-uint8_t CKellerBus::getClass() {
+uint8_t CKellerBus::getClass() 
+{
   return cClass;
 }
 
-
-uint8_t CKellerBus::getGroup() {
+uint8_t CKellerBus::getGroup() 
+{
   return cGroup;
 }
 
-
-uint8_t CKellerBus::getYear() {
+uint8_t CKellerBus::getYear() 
+{
   return cYear;
 }
 
-
-uint8_t CKellerBus::getWeek() {
+uint8_t CKellerBus::getWeek() 
+{
   return cWeek;
 }
 
-
-uint8_t CKellerBus::getBuffer() {
+uint8_t CKellerBus::getBuffer() 
+{
   return cBuffer;
 }
 
-
-uint8_t CKellerBus::getState() {
+uint8_t CKellerBus::getState() 
+{
   return cState;
 }
 
-
-uint8_t CKellerBus::getDevice() {
+uint8_t CKellerBus::getDevice() 
+{
   return device;
 }
 
 
-float CKellerBus::getCH0() {
+float CKellerBus::getCH0() 
+{
 	readChannel(CH_0);
   return ch0;
 }
 
 
-float CKellerBus::getP1(byte unit) {
+float CKellerBus::getP1(byte unit) 
+{
 	readChannel(CH_P1);		
   return pressureConversion(chP1,unit);
 }
 
 
-float CKellerBus::getP2(byte unit) {
+float CKellerBus::getP2(byte unit) 
+{
 	readChannel(CH_P2);
   return pressureConversion(chP2,unit);
 }
 
 
-float CKellerBus::getTOB1(byte unit) {
+float CKellerBus::getTOB1(byte unit) 
+{
 	readChannel(CH_TOB1);
   return temperatureConversion(chTOB1,unit);
 }
 
 
-float CKellerBus::getTOB2(byte unit) {
+float CKellerBus::getTOB2(byte unit) 
+{
 	readChannel(CH_TOB2);
   return temperatureConversion(chTOB2,unit);
 }
 
 
-float CKellerBus::getT(uint8_t unit) {
+float CKellerBus::getT(uint8_t unit) 
+{
 	readChannel(CH_T);
   return temperatureConversion(chT,unit);
 }
@@ -230,8 +238,8 @@ void CKellerBus::Close()
 // Returns: Pressure in target unit
 // Effect:  bar in target unit conversion
 
-float CKellerBus::pressureConversion(float sValue, uint8_t targetUnit) {
-	
+float CKellerBus::pressureConversion(float sValue, uint8_t targetUnit) 
+{	
 	float pValue;
 	
 	switch (targetUnit) {
@@ -290,8 +298,8 @@ float CKellerBus::pressureConversion(float sValue, uint8_t targetUnit) {
 // Returns: temperature in target unit
 // Effect:  deg celsius conversion in target unit
 
-float CKellerBus::temperatureConversion(float sValue, uint8_t targetUnit) {
-	
+float CKellerBus::temperatureConversion(float sValue, uint8_t targetUnit) 
+{	
 	float tValue;
 	
 	switch (targetUnit) {

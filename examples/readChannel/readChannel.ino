@@ -36,7 +36,7 @@ void loop() {
   Serial.println(kbus.getSerialnumber(),DEC);
   Serial.println(" - - - - - - - -");
   Serial.println("P1  : ");
-  Serial.print(kbus.getP1(),DEC);
+  Serial.print(kbus.getP1(P_BAR),DEC);
   Serial.println(" bar");
   Serial.print(kbus.getP1(P_PSI),DEC);
   Serial.println(" psi");

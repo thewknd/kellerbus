@@ -65,10 +65,10 @@ class CKellerBus
     void Open();
     void Close();
     
-    byte TransferData(byte nTX, byte nRX);
-    void readChannel(uint8_t Channel);
-    float pressureConversion(float sValue, uint8_t);
-    float temperatureConversion(float sValue, uint8_t);
+    void TransferData(uint8_t, uint8_t);
+    void readChannel(uint8_t);
+    float pressureConversion(float, uint8_t);
+    float temperatureConversion(float, uint8_t);
     
     uint8_t Error;
     
@@ -79,9 +79,9 @@ class CKellerBus
     uint8_t cBuffer;
     uint8_t cState;
     
-    unsigned long Serialnumber;
+    uint32_t Serialnumber;
     
-    byte device;
+    uint8_t device;
     
     float ch0;
     float chP1;
@@ -92,9 +92,9 @@ class CKellerBus
     
     
   public:  
-    CKellerBus(HardwareSerial* _comm, uint16_t _baudrate, uint8_t _rts, uint16_t _timeout);
+    CKellerBus(HardwareSerial*, uint16_t, uint8_t, uint16_t);
     
-    void initDevice(uint8_t _device);
+    void initDevice(uint8_t);
      
     uint8_t getClass();
     uint8_t getGroup();
@@ -106,10 +106,10 @@ class CKellerBus
     uint32_t getSerialnumber();
     
     float getCH0();
-    float getP1(byte unit = P_BAR);
-    float getP2(byte unit = P_BAR);
-    float getTOB1(byte unit = T_DEGC);
-    float getTOB2(byte unit = T_DEGC);
-    float getT(byte unit = T_DEGC);    
+    float getP1(uint8_t);
+    float getP2(uint8_t);
+    float getTOB1(uint8_t);
+    float getTOB2(uint8_t);
+    float getT(uint8_t);    
 };
 #endif
