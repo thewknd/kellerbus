@@ -34,12 +34,8 @@ void loop() {
     Serial.println("COMM ERROR");
   }
   
-  if(kbus.readSerialnumber() == COMM_OK) { 
-    Serial.print("SN  : ");
-    Serial.println(kbus.getSerialnumber(),DEC);
-  } else {
-    Serial.println("COMM ERROR");
-  }
+  Serial.print("SN  : ");
+  Serial.println(kbus.getSerialnumber(),DEC);
   Serial.println(" - - - - - - - -");
   Serial.println("P1  : ");
   Serial.print(kbus.getP1(),DEC);

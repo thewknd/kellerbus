@@ -3,7 +3,6 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 */
 
 #include <kellerbus.h>
-//#include <CRC16.h>
 
 CKellerBus::CKellerBus(HardwareSerial* _comm, int _baudrate, byte _rts, int _timeout){
   
@@ -19,12 +18,6 @@ CKellerBus::CKellerBus(HardwareSerial* _comm, int _baudrate, byte _rts, int _tim
 byte CKellerBus::initDevice(byte _device) 
 {
   byte ret;
-  unsigned long b=0;
-  
-    // Clear TxBuffer;
-  for(b = 0; b < COMM_TX_MAX; b++) {
-    TxBuffer[b] = 0;
-  }
   
   device = _device;
   TxBuffer[0] = device;
@@ -40,7 +33,7 @@ byte CKellerBus::initDevice(byte _device)
     ret = COMM_OK;
   } else {
       // 2nd try for sleeping dcx
-      delay(5);
+      delay(30);
       TxBuffer[0] = device;
       TxBuffer[1] = 0b01111111 & 48;
       if(TransferData(2,10) == COMM_OK) {
@@ -59,40 +52,28 @@ byte CKellerBus::initDevice(byte _device)
   return ret;
 }
 
-byte CKellerBus::readSerialnumber() 
+//################## getSerialnumber ###################
+// Takes:   nothing
+// Returns: Serialnumber
+// Effect:  Reads the serialnumber out of the transducer
+
+unsigned long CKellerBus::getSerialnumber() 
 {
-  byte ret;
-  unsigned long b=0;
-  
-    // Clear TxBuffer;
-  for(b = 0; b < COMM_TX_MAX; b++) {
-    TxBuffer[b] = 0;
-  }
-  
   TxBuffer[0] = device;
   TxBuffer[1] = 0b01111111 & 69;
   
   if(TransferData(2,8) == COMM_OK) {
     Serialnumber = 256*65536*(unsigned long)RxBuffer[2] + 65536*(unsigned long)RxBuffer[3] + 256*(unsigned long)RxBuffer[4] + (unsigned long)RxBuffer[5];
-    ret = COMM_OK;
-  } else {
-    ret = COMM_ERR_BAD_CRC;
-  }
-
-  return ret;
+  } 
+  return Serialnumber;
 }
+
 
 byte CKellerBus::readChannel(byte Channel)
 {
   byte bteArr[4];
   float value;
   byte ret;
-  unsigned long b=0;
-  
-	// Clear TxBuffer;
-  for(b = 0; b < COMM_TX_MAX; b++) {
-    TxBuffer[b] = 0;
-  }
   
   TxBuffer[0] = device;
   TxBuffer[1] = 0b01111111 & 73;
@@ -123,6 +104,7 @@ byte CKellerBus::readChannel(byte Channel)
 
   return ret;
 }
+
 //################## TransferData ###################
 // Takes:   length of data and response
 // Returns: status
@@ -243,11 +225,6 @@ float CKellerBus::getTOB2(byte unit) {
 float CKellerBus::getT(byte unit) {
 	readChannel(CH_T);
   return temperatureConversion(chT,unit);
-}
-
-
-unsigned long CKellerBus::getSerialnumber() {
-  return Serialnumber;
 }
 
 
