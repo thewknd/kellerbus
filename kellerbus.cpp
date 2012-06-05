@@ -139,7 +139,7 @@ byte CKellerBus::TransferData(byte nTX, byte nRX)
   // Open HWSerial
   Open();
   digitalWrite(RTS_PIN,HIGH);
-  delay(1);
+  delay(2);
   
   // Calculate CRC16
   Crc = checksum.CRC16(TxBuffer,nTX);
@@ -147,10 +147,10 @@ byte CKellerBus::TransferData(byte nTX, byte nRX)
   TxBuffer[nTX+1]= Crc&0xFF;  
   
   Comm->write(TxBuffer,(int)(nTX + 2));
-  delay(5);
+  delay(6);
   
   digitalWrite(RTS_PIN,LOW);  
-  delay(3);  
+  delay(4);  
   
   b = 0;  
   startTimeout = millis();
