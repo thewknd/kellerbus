@@ -21,18 +21,16 @@ void loop() {
   
   Serial.println("\n-- KELLERBUS --");
   
-  if(kbus.initDevice(250) == COMM_OK) { 
-    Serial.print("TYPE: ");
-    Serial.print(kbus.getClass(),DEC);
-    Serial.print(".");
-    Serial.print(kbus.getGroup(),DEC);
-    Serial.print("-");
-    Serial.print(kbus.getYear(),DEC);
-    Serial.print(".");
-    Serial.println(kbus.getWeek(),DEC);
-  } else {
-    Serial.println("COMM ERROR");
-  }
+  kbus.initDevice(250);
+  Serial.print("TYPE: ");
+  Serial.print(kbus.getClass(),DEC);
+  Serial.print(".");
+  Serial.print(kbus.getGroup(),DEC);
+  Serial.print("-");
+  Serial.print(kbus.getYear(),DEC);
+  Serial.print(".");
+  Serial.println(kbus.getWeek(),DEC);
+
   
   Serial.print("SN  : ");
   Serial.println(kbus.getSerialnumber(),DEC);

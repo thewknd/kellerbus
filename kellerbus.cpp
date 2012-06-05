@@ -4,7 +4,7 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 
 #include <kellerbus.h>
 
-CKellerBus::CKellerBus(HardwareSerial* _comm, int _baudrate, byte _rts, int _timeout){
+CKellerBus::CKellerBus(HardwareSerial* _comm, uint16_t _baudrate, uint8_t _rts, uint16_t _timeout){
   
   baudrate = _baudrate;
   timeout = _timeout;
@@ -15,9 +15,8 @@ CKellerBus::CKellerBus(HardwareSerial* _comm, int _baudrate, byte _rts, int _tim
   digitalWrite(RTS_PIN,LOW);
 }
 
-byte CKellerBus::initDevice(byte _device) 
+void CKellerBus::initDevice(uint8_t _device) 
 {
-  byte ret;
   
   device = _device;
   TxBuffer[0] = device;
@@ -30,26 +29,20 @@ byte CKellerBus::initDevice(byte _device)
     cWeek = RxBuffer[5];
     cBuffer = RxBuffer[6];
     cState = RxBuffer[7];
-    ret = COMM_OK;
   } else {
       // 2nd try for sleeping dcx
-      delay(30);
-      TxBuffer[0] = device;
-      TxBuffer[1] = 0b01111111 & 48;
-      if(TransferData(2,10) == COMM_OK) {
+    delay(30);
+    TxBuffer[0] = device;
+    TxBuffer[1] = 0b01111111 & 48;
+    if(TransferData(2,10) == COMM_OK) {
       cClass = RxBuffer[2];
       cGroup = RxBuffer[3];
       cYear = RxBuffer[4];
       cWeek = RxBuffer[5];
       cBuffer = RxBuffer[6];
       cState = RxBuffer[7];
-      ret = COMM_OK;
-    } else {
-      ret = COMM_ERR_BAD_CRC;
-    }
+    } 
   }
-
-  return ret;
 }
 
 //################## getSerialnumber ###################
@@ -57,7 +50,7 @@ byte CKellerBus::initDevice(byte _device)
 // Returns: Serialnumber
 // Effect:  Reads the serialnumber out of the transducer
 
-unsigned long CKellerBus::getSerialnumber() 
+uint32_t CKellerBus::getSerialnumber() 
 {
   TxBuffer[0] = device;
   TxBuffer[1] = 0b01111111 & 69;
@@ -69,11 +62,10 @@ unsigned long CKellerBus::getSerialnumber()
 }
 
 
-byte CKellerBus::readChannel(byte Channel)
+void CKellerBus::readChannel(uint8_t Channel)
 {
-  byte bteArr[4];
+  uint8_t bteArr[4];
   float value;
-  byte ret;
   
   TxBuffer[0] = device;
   TxBuffer[1] = 0b01111111 & 73;
@@ -96,13 +88,7 @@ byte CKellerBus::readChannel(byte Channel)
       case 3: chT = value; break;  
       default:break;   
     }
-    ret = COMM_OK;
-
-  } else {
-    ret = COMM_ERR_BAD_CRC;
-  }
-
-  return ret;
+  } 
 }
 
 //################## TransferData ###################
@@ -110,13 +96,13 @@ byte CKellerBus::readChannel(byte Channel)
 // Returns: status
 // Effect:  Transfer Data to client, recieve response
 
-byte CKellerBus::TransferData(byte nTX, byte nRX) 
+uint8_t CKellerBus::TransferData(uint8_t nTX, uint8_t nRX) 
 {
-  unsigned short Crc; 
+  uint16_t Crc; 
   byte n, m, x;
-  byte ret;
-  int b=0;
-  unsigned long startTimeout;
+  uint8_t ret;
+  uint16_t b=0;
+  uint32_t startTimeout;
 
   // Open HWSerial
   Open();
@@ -157,37 +143,37 @@ byte CKellerBus::TransferData(byte nTX, byte nRX)
 }
 
 
-byte CKellerBus::getClass() {
+uint8_t CKellerBus::getClass() {
   return cClass;
 }
 
 
-byte CKellerBus::getGroup() {
+uint8_t CKellerBus::getGroup() {
   return cGroup;
 }
 
 
-byte CKellerBus::getYear() {
+uint8_t CKellerBus::getYear() {
   return cYear;
 }
 
 
-byte CKellerBus::getWeek() {
+uint8_t CKellerBus::getWeek() {
   return cWeek;
 }
 
 
-byte CKellerBus::getBuffer() {
+uint8_t CKellerBus::getBuffer() {
   return cBuffer;
 }
 
 
-byte CKellerBus::getState() {
+uint8_t CKellerBus::getState() {
   return cState;
 }
 
 
-byte CKellerBus::getDevice() {
+uint8_t CKellerBus::getDevice() {
   return device;
 }
 
@@ -222,25 +208,21 @@ float CKellerBus::getTOB2(byte unit) {
 }
 
 
-float CKellerBus::getT(byte unit) {
+float CKellerBus::getT(uint8_t unit) {
 	readChannel(CH_T);
   return temperatureConversion(chT,unit);
 }
 
 
-byte CKellerBus::Open()
+void CKellerBus::Open()
 {
   Comm->begin(baudrate);  
-  return 1;
 }
 
 
-byte CKellerBus::Close()
+void CKellerBus::Close()
 {
   Comm->end();
-  delay(2);  
-  
-  return 1;
 }
 
 //################## pressureConversion ###################
@@ -248,7 +230,7 @@ byte CKellerBus::Close()
 // Returns: Pressure in target unit
 // Effect:  bar in target unit conversion
 
-float CKellerBus::pressureConversion(float sValue, byte targetUnit) {
+float CKellerBus::pressureConversion(float sValue, uint8_t targetUnit) {
 	
 	float pValue;
 	
@@ -308,7 +290,7 @@ float CKellerBus::pressureConversion(float sValue, byte targetUnit) {
 // Returns: temperature in target unit
 // Effect:  deg celsius conversion in target unit
 
-float CKellerBus::temperatureConversion(float sValue, byte targetUnit) {
+float CKellerBus::temperatureConversion(float sValue, uint8_t targetUnit) {
 	
 	float tValue;
 	

@@ -8,7 +8,9 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 #ifndef _H_KELLERBUS
 #define _H_KELLERBUS
 
-#define COMM_ERR_BAD_CRC           	-4
+#define RS_ERROR 										-1
+#define RS_TIMEOUT          				-4
+#define RS_BADDATA 									-5
 #define COMM_OK                     0
 
 #define COMM_TX_MAX                 20
@@ -53,27 +55,29 @@ class CKellerBus
     
     CRC checksum;
     
-    int baudrate;
-    byte RTS_PIN;
-    byte timeout;
+    uint16_t baudrate;
+    uint8_t RTS_PIN;
+    uint16_t timeout;
         
-    byte TxBuffer[COMM_TX_MAX];
-    byte RxBuffer[COMM_TX_MAX + COMM_RX_MAX];
+    uint8_t TxBuffer[COMM_TX_MAX];
+    uint8_t RxBuffer[COMM_TX_MAX + COMM_RX_MAX];
     
-    byte Open();
-    byte Close();
+    void Open();
+    void Close();
     
     byte TransferData(byte nTX, byte nRX);
-    byte readChannel(byte Channel = CH_P1);
-    float pressureConversion(float sValue, byte targetUnit = P_BAR);
-    float temperatureConversion(float sValue, byte targetUnit = T_DEGC);
+    void readChannel(uint8_t Channel);
+    float pressureConversion(float sValue, uint8_t);
+    float temperatureConversion(float sValue, uint8_t);
     
-    byte cClass;
-    byte cGroup;
-    byte cYear;
-    byte cWeek;
-    byte cBuffer;
-    byte cState;
+    uint8_t Error;
+    
+    uint8_t cClass;
+    uint8_t cGroup;
+    uint8_t cYear;
+    uint8_t cWeek;
+    uint8_t cBuffer;
+    uint8_t cState;
     
     unsigned long Serialnumber;
     
@@ -88,20 +92,18 @@ class CKellerBus
     
     
   public:  
-    CKellerBus(HardwareSerial* _comm, int _baudrate, byte _rts, int _timeout);
+    CKellerBus(HardwareSerial* _comm, uint16_t _baudrate, uint8_t _rts, uint16_t _timeout);
     
-    byte initDevice(byte _device);
-    
-    byte readSerialnumber();
+    void initDevice(uint8_t _device);
      
-    byte getClass();
-    byte getGroup();
-    byte getYear();
-    byte getWeek();
-    byte getBuffer();
-    byte getState();
-    byte getDevice();
-    unsigned long getSerialnumber();
+    uint8_t getClass();
+    uint8_t getGroup();
+    uint8_t getYear();
+    uint8_t getWeek();
+    uint8_t getBuffer();
+    uint8_t getState();
+    uint8_t getDevice();
+    uint32_t getSerialnumber();
     
     float getCH0();
     float getP1(byte unit = P_BAR);
