@@ -8,12 +8,12 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 #ifndef _H_KELLERBUS
 #define _H_KELLERBUS
 
+#define COMM_OK                     0
 #define RS_ERROR 										-1
 #define RS_TIMEOUT          				-4
 #define RS_BADDATA 									-5
 #define SW_INVALIDPARAM							-6
 #define TX_ERROR										-7
-#define COMM_OK                     0
 
 #define COMM_TX_MAX                 20
 #define COMM_RX_MAX                 260
@@ -76,6 +76,8 @@ class CKellerBus
      
   public:  
     CKellerBus(HardwareSerial*, uint16_t, uint8_t, uint16_t);
+    
+    int8_t getError();
     
     void initDevice(uint8_t _device); 
     void initDevice(uint8_t, uint8_t*, uint8_t*, uint8_t*, uint8_t*, uint8_t*, uint8_t*); 

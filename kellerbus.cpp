@@ -17,7 +17,6 @@ CKellerBus::CKellerBus(HardwareSerial* _comm, uint16_t _baudrate, uint8_t _rts, 
 
 void CKellerBus::initDevice(uint8_t _device) 
 {
-  
   device = _device;
   TxBuffer[0] = device;
   TxBuffer[1] = 0b01111111 & 48;
@@ -34,7 +33,6 @@ void CKellerBus::initDevice(uint8_t _device)
 
 void CKellerBus::initDevice(uint8_t _device, uint8_t* _class, uint8_t* _group, uint8_t* _year, uint8_t* _week, uint8_t* _buffer, uint8_t* _state) 
 {
-  
   device = _device;
   TxBuffer[0] = device;
   TxBuffer[1] = 0b01111111 & 48;
@@ -110,8 +108,8 @@ float CKellerBus::readChannel(uint8_t Channel)
 
 //################## TransferData ###################
 // Takes:   length of data and response
-// Returns: status
-// Effect:  Transfer Data to client, recieve response
+// Returns: nothing
+// Effect:  Transfer data to the device, recieve response
 
 void CKellerBus::TransferData(uint8_t nTX, uint8_t nRX) 
 {
@@ -130,18 +128,19 @@ void CKellerBus::TransferData(uint8_t nTX, uint8_t nRX)
   Crc = checksum.CRC16(TxBuffer,nTX);
   TxBuffer[nTX]= (Crc>>8)&0xFF; 
   TxBuffer[nTX+1]= Crc&0xFF;  
-  
   // Write the TxBuffer
   if (Comm->write(TxBuffer,(int)(nTX + 2)) != (nTX + 2)) {
 	  // Wrong amount if transmitted bytes
 	  Error = TX_ERROR;
   }
-  delay(5);
+  
+  Comm->flush();
+  delay(4); 
   
   // Set Ready to send to Low
   digitalWrite(RTS_PIN,LOW);  
   delay(1);  
-  
+
   b = 0;  
   startTimeout = millis();
   do {
@@ -157,12 +156,12 @@ void CKellerBus::TransferData(uint8_t nTX, uint8_t nRX)
   if (Error == TX_ERROR) {
   
   } else if (b == nRX) {
-    Error = COMM_OK;             
-  } else if (now > startTimeout + timeout) {
-	  Error = RS_TIMEOUT;
-  } else {
-    Error = RS_ERROR;   
-  }
+		Error = COMM_OK;             
+	} else if (now > startTimeout + timeout) {
+		Error = RS_TIMEOUT;
+	} else {
+		Error = RS_ERROR;   
+	}
   	
   // Close HWSerial
   Close();
@@ -306,4 +305,14 @@ float CKellerBus::temperatureConversion(float sValue, uint8_t targetUnit)
 	}
 	
   return tValue;
+}
+
+//################## temperatureConversion ###################
+// Takes:  -
+// Returns: Error code
+// Effect:  
+
+int8_t CKellerBus::getError()
+{
+	return Error;
 }
