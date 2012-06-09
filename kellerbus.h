@@ -1,6 +1,6 @@
 /*
 This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported License. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/3.0/ or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
-*/
+ */
 
 #include <Arduino.h>
 #include <CRC16.h>
@@ -59,39 +59,39 @@ class CKellerBus
 {
   private:
     HardwareSerial *Comm;
-    
+  
     CRC checksum;
-    
+  
     uint16_t baudrate;
     uint8_t RTS_PIN;
     uint16_t timeout;
-        
+  
     uint8_t TxBuffer[COMM_TX_MAX];
     uint8_t RxBuffer[COMM_TX_MAX + COMM_RX_MAX];
-
+  
     int8_t Error;
-    
+  
     uint8_t device;
-    
+  
     void Open();
     void Close();
-    
+  
     void TransferData(uint8_t, uint8_t);
     float readChannel(uint8_t);
     float pressureConversion(float, uint8_t);
     float temperatureConversion(float, uint8_t);
-     
+  
   public:  
     CKellerBus(HardwareSerial*, uint16_t, uint8_t, uint16_t);
-    
+  
     int8_t getError();
-    
+  
     void initDevice(uint8_t _device); 
     void initDevice(uint8_t, uint8_t*, uint8_t*, uint8_t*, uint8_t*, uint8_t*, uint8_t*); 
-    
+  
     uint8_t getDevice();
     uint32_t getSerialnumber();
-    
+  
     float getCH0();
     float getP1(uint8_t);
     float getP2(uint8_t);
@@ -100,3 +100,4 @@ class CKellerBus
     float getT(uint8_t);    
 };
 #endif
+
