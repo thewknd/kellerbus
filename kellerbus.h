@@ -8,12 +8,17 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 #ifndef _H_KELLERBUS
 #define _H_KELLERBUS
 
-#define COMM_OK                     0
+#define RS_OK                   		0
 #define RS_ERROR 										-1
 #define RS_TIMEOUT          				-4
 #define RS_BADDATA 									-5
 #define SW_INVALIDPARAM							-6
-#define TX_ERROR										-7
+#define RS_TXERROR									-7
+#define RS_BADCRC 									-8
+#define DEVICE_NONFUNCTION					-10
+#define DEVICE_INCPARAMETERS				-11
+#define DEVICE_ERRONEOUSDATA				-12
+#define DEVICE_INIT									-13
 
 #define COMM_TX_MAX                 20
 #define COMM_RX_MAX                 260
@@ -48,6 +53,8 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 #define CH_TOB1											4
 #define CH_TOB2											5
 
+#define KB_DEBUG										1
+
 class CKellerBus
 {
   private:
@@ -62,7 +69,7 @@ class CKellerBus
     uint8_t TxBuffer[COMM_TX_MAX];
     uint8_t RxBuffer[COMM_TX_MAX + COMM_RX_MAX];
 
-    uint8_t Error;
+    int8_t Error;
     
     uint8_t device;
     

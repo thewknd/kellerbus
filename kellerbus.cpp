@@ -22,7 +22,7 @@ void CKellerBus::initDevice(uint8_t _device)
   TxBuffer[1] = 0b01111111 & 48;
   
   TransferData(2,10);
-  if (Error != COMM_OK) {
+  if (Error != RS_OK) {
       // 2nd try for sleeping dcx
     delay(30);
     TxBuffer[0] = device;
@@ -36,9 +36,9 @@ void CKellerBus::initDevice(uint8_t _device, uint8_t* _class, uint8_t* _group, u
   device = _device;
   TxBuffer[0] = device;
   TxBuffer[1] = 0b01111111 & 48;
-  
+   
   TransferData(2,10);
-  if (Error == COMM_OK) {
+  if (Error == RS_OK) {
     *_class = RxBuffer[2];
     *_group = RxBuffer[3];
     *_year = RxBuffer[4];
@@ -51,7 +51,7 @@ void CKellerBus::initDevice(uint8_t _device, uint8_t* _class, uint8_t* _group, u
     TxBuffer[0] = device;
     TxBuffer[1] = 0b01111111 & 48;
     TransferData(2,10);
-    if (Error == COMM_OK) {
+    if (Error == RS_OK) {
       *_class = RxBuffer[2];
       *_group = RxBuffer[3];
       *_year = RxBuffer[4];
@@ -63,8 +63,8 @@ void CKellerBus::initDevice(uint8_t _device, uint8_t* _class, uint8_t* _group, u
 }
 
 //################## getSerialnumber ###################
-// Takes:   nothing
-// Returns: Serialnumber
+// Takes:   -
+// Returns: Serialnumber / Error: -3
 // Effect:  Reads the serialnumber out of the device
 
 uint32_t CKellerBus::getSerialnumber() 
@@ -74,8 +74,8 @@ uint32_t CKellerBus::getSerialnumber()
   
   TransferData(2,8);
   
-  // Serialnumber calculation, see keller s30 protocol documentation
-  return 256*65536*(unsigned long)RxBuffer[2] + 65536*(unsigned long)RxBuffer[3] + 256*(unsigned long)RxBuffer[4] + (unsigned long)RxBuffer[5];
+  // Serialnumber calculation, see protocol documentation
+  return 256*65536*(uint32_t)RxBuffer[2] + 65536*(uint32_t)RxBuffer[3] + 256*(uint32_t)RxBuffer[4] + (uint32_t)RxBuffer[5];
 }
 
 
@@ -85,7 +85,6 @@ float CKellerBus::readChannel(uint8_t Channel)
   float value;
   if ((Channel < MAX_CHANNELS) && (Channel >= 0) ) {
   
-	  
 	  // Prepare TxBuffer
 	  TxBuffer[0] = device;
 	  TxBuffer[1] = 0b01111111 & 73;
@@ -102,71 +101,178 @@ float CKellerBus::readChannel(uint8_t Channel)
   }
   else {
 		Error = SW_INVALIDPARAM;
-		return -1;  
+		return -3;  
   }
 }  
 
 //################## TransferData ###################
 // Takes:   length of data and response
-// Returns: nothing
+// Returns: -
 // Effect:  Transfer data to the device, recieve response
 
-void CKellerBus::TransferData(uint8_t nTX, uint8_t nRX) 
+void CKellerBus::TransferData(byte nTX, byte nRX) 
 {
-  uint16_t Crc; 
-  uint16_t b=0;
-  uint32_t startTimeout,now;
+  uint16_t Crc, p, now, startTimeout, b=0;
+  uint8_t crcBuff[COMM_TX_MAX + COMM_RX_MAX];
+  
+  Error = RS_OK;
+  
+  // Clear RxBuffer;
+  for(b = 0; b < COMM_TX_MAX + COMM_RX_MAX; b++) {
+    RxBuffer[b] = 0;
+    crcBuff[b] = 0;
+  }
+  b = 0;
 
-  // Open HWSerial
-  Open();
-  
-  // Set Ready to send to High
-  digitalWrite(RTS_PIN,HIGH);
-  delay(1);
-  
-  // Calculate CRC16
+  	
+  // generate checksum	
   Crc = checksum.CRC16(TxBuffer,nTX);
   TxBuffer[nTX]= (Crc>>8)&0xFF; 
   TxBuffer[nTX+1]= Crc&0xFF;  
-  // Write the TxBuffer
-  if (Comm->write(TxBuffer,(int)(nTX + 2)) != (nTX + 2)) {
-	  // Wrong amount if transmitted bytes
-	  Error = TX_ERROR;
+  
+  if (KB_DEBUG) {
+	  Serial.print("\nTX:");
+	  for(p = 0; p < nTX + 2; p++) {
+			Serial.print(TxBuffer[p],DEC);
+			Serial.print ("'") ;
+	  }
+	  Serial.println("");
   }
   
-  Comm->flush();
-  delay(4); 
+  // Open HWSerial
+  Open();
   
-  // Set Ready to send to Low
+  digitalWrite(RTS_PIN,HIGH);
+  delay(2);
+  
+  if(Comm->write(TxBuffer,(int)(nTX + 2)) != (nTX + 2)) {
+	  Error = RS_TXERROR;
+  }
+  delay(5);
+  
   digitalWrite(RTS_PIN,LOW);  
-  delay(1);  
-
+  delay(1); 
+  
+  if (KB_DEBUG) Serial.print("RX:");
+  
   b = 0;  
   startTimeout = millis();
   do {
-    while (Comm->available() > 0) {
-      // store the incoming byte in the RxBuffer
-      RxBuffer[b] = Comm->read(); 
-      b++;
-      startTimeout = millis();
-    } 
-    now = millis();  
-  } while((startTimeout + timeout >= now ) && (b < nRX)); // Timeout calculation
+    if (Comm->available() > 0) {
+      RxBuffer[b] = Comm->read();
+      if (KB_DEBUG) Serial.print(RxBuffer[b],DEC); 
+      
+      if (b == 0){
+
+      	if(device == 250) {
+	      	if ((RxBuffer[b] >= 1) && (RxBuffer[b] <= 250)) {
+		      	b++;
+	      	}
+      	} else {
+	      	if(RxBuffer[b] == device )	{
+		      	b++;  	
+	      	} else {
+		      	if (KB_DEBUG) Serial.print("***");
+	      	}
+      	}
+	    } else if(b == 1) {
+	    
+	    	// handle exception errors (communication protocol: 3.3.2.2 / Exception errors )
+	    	
+	    	if(RxBuffer[b] != (0x80 | TxBuffer[b])) {	
+	    	
+		    	if( RxBuffer[b] == TxBuffer[b]) {
+		    		b++;
+		    	} else {
+			    	if(device == 250) {
+			      	if ((RxBuffer[b] >= 1) || (RxBuffer[b] <= 250)) {
+			      		if (KB_DEBUG) Serial.print("+++");
+			      		RxBuffer[b-1] = RxBuffer[b]; 
+			      	} else {
+				      	b = 0;
+				      	if (KB_DEBUG) Serial.print("***");
+			      	}
+		      	} else {
+			      	if(RxBuffer[b] == device )	{
+				      	if (KB_DEBUG) Serial.print("+++");
+				      	RxBuffer[b-1] = RxBuffer[b];
+			      	} else {
+			      		b = 0;
+				      	if (KB_DEBUG) Serial.print("***");
+			      	}
+		      	}
+		    	}
+	    	} else {
+		    	b++;
+		    	nRX = 3;
+		    	if (KB_DEBUG) Serial.print(" EX ");
+	    	}
+	    } else {
+		    b++;
+	    }
+	    
+	    if (KB_DEBUG) Serial.print("'");      
+      
+      startTimeout = millis();    
+      
+    }      
+    now = millis();    
+  } while((b < nRX) && (now - startTimeout <= timeout) && (Error == RS_OK)); // timeout 
   
-  if (Error == TX_ERROR) {
-  
-  } else if (b == nRX) {
-		Error = COMM_OK;             
-	} else if (now > startTimeout + timeout) {
+  if (now - startTimeout > timeout) {
 		Error = RS_TIMEOUT;
-	} else {
-		Error = RS_ERROR;   
+		if (KB_DEBUG) {
+			Serial.print("\r\nb:");
+			Serial.println(b);
+			Serial.print("nRX:");
+			Serial.println(nRX);
+			Serial.print("diff:");
+			Serial.println(now - startTimeout);
+			Serial.print("Timeout:");
+			Serial.println(timeout);
+		}
 	}
+  
+  if(Error == RS_OK) {
+	  // Checksumme überprüfen
+	  if (KB_DEBUG) Serial.print("\r\nCRC:");  
+	  
+	  for(p = 0; p < b-2;p++) {
+	  	if (KB_DEBUG) {
+		  	Serial.print(RxBuffer[p]); 
+		  	Serial.print("'");
+		  }
+	  	crcBuff[p] = RxBuffer[p];
+	  }
+	  Crc = checksum.CRC16(crcBuff,b-2);
+	  if (KB_DEBUG) {
+		  Serial.print(" -- HB:"); 
+		  Serial.print(highByte(Crc));
+		  Serial.print(" LB:");
+		  Serial.print(lowByte(Crc));
+		  Serial.println("");
+		}
+	  if((highByte(Crc) != RxBuffer[b-2]) || (lowByte(Crc) != RxBuffer[b-1])) {
+		  Error = RS_BADCRC;
+		  if (KB_DEBUG)Serial.println("*** BAD CRC");
+	  } 
+  }
+  
+  if((RxBuffer[1] & 0x80)) {
+  	switch (RxBuffer[2]) {
+  		case 1 : Error = DEVICE_NONFUNCTION; break;
+  		case 2 : Error = DEVICE_INCPARAMETERS; break;
+  		case 3 : Error = DEVICE_ERRONEOUSDATA; break;
+  		case 32: Error = DEVICE_INIT; break;
+  		default: Error = RS_ERROR; break;
+  	}
+  }  
   	
   // Close HWSerial
   Close();
+  if (KB_DEBUG) Serial.print("Fehler:");
+  if (KB_DEBUG) Serial.println(Error);
 }
-
 
 float CKellerBus::getCH0() 
 {
