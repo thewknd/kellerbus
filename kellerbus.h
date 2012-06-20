@@ -55,7 +55,39 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 #define CH_TOB1											4
 #define CH_TOB2											5
 
-#define KB_DEBUG										1
+// Functin 30, read coefficient, read scaling values
+
+#define OFFSET_P1										64
+#define GAIN_P1											65
+#define OFFSET_P2										66
+#define GAIN_P2											67
+#define OFFSET_ANALOG								68
+#define GAIN_ANALOG									69
+#define OFFSET_CH0									70
+#define GAIN_CH0										71
+
+#define MIN_P1											80
+#define MAX_P1											81
+#define MIN_P2											82
+#define MAX_P2											83
+#define MIN_T												84
+#define MAX_T												85
+#define MIN_TOB1										86
+#define MAX_TOB1										87
+#define MIN_TOB2										88
+#define MAX_TOB2										89
+#define MIN_CH0											90
+#define MAX_CH0											91
+
+#define MIN_ANALOG									94
+#define MAX_ANALOG									95
+
+
+
+
+
+#define KB_DEBUG										0
+
 
 #define delayus 										delayMicroseconds
 
@@ -81,12 +113,6 @@ class CKellerBus
 		void Close();
 	
 		void TransferData(uint8_t, uint8_t);
-		float readChannel(uint8_t);
-		float pressureConversion(float, uint8_t);
-		float temperatureConversion(float, uint8_t);
-		
-		void setTimeout(uint16_t);
-		uint16_t getTimeout(void);
 	
 	public:	 
 		CKellerBus(HardwareSerial*, uint16_t, uint8_t, uint16_t);
@@ -98,13 +124,21 @@ class CKellerBus
 	
 		uint8_t getDevice();
 		uint32_t getSerialnumber();
-	
+		
+		float readChannel(uint8_t);
+		float readScalingValue(uint8_t);
+		float pressureConversion(float, uint8_t);
+		float temperatureConversion(float, uint8_t);
+		
 		float getCH0();
 		float getP1(uint8_t);
 		float getP2(uint8_t);
 		float getTOB1(uint8_t);
 		float getTOB2(uint8_t);
 		float getT(uint8_t);
+		
+		void setTimeout(uint16_t);
+		uint16_t getTimeout(void);
 };
 #endif
 

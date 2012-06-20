@@ -104,6 +104,36 @@ float CKellerBus::readChannel(uint8_t Channel)
 	}
 }	 
 
+//################## readScalingValues ###################
+// Takes:		length of data and response
+// Returns: -
+// Effect:	Transfer data to the device, recieve response
+
+float CKellerBus::readScalingValue(uint8_t no)
+{
+	uint8_t bteArr[4];
+	float value;
+	if ((no < 96) && (no >= 53) ) {
+
+		// Prepare TxBuffer
+		TxBuffer[0] = device;
+		TxBuffer[1] = 0b01111111 & 30;
+		TxBuffer[2] = no;
+
+		TransferData(3,8);
+
+		bteArr[0] = RxBuffer[5];
+		bteArr[1] = RxBuffer[4];
+		bteArr[2] = RxBuffer[3];
+		bteArr[3] = RxBuffer[2];
+
+		return *(float*)(&bteArr[0]);
+	} else {
+		Error = SW_INVALIDPARAM;
+		return -1000;	
+	}
+}	 
+
 //################## TransferData ###################
 // Takes:		length of data and response
 // Returns: -
@@ -142,17 +172,18 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
 	Open();
 
 	digitalWrite(RTS_PIN,HIGH);
-	//delayus(2);
+	delay (1);
 
 	if(Comm->write(TxBuffer,(int)(nTX + 2)) != (nTX + 2)) {
 		Error = RS_TXERROR;
 	}
-	//while(bitRead(UCSR1B, TXCIE1) == 1) ;
-	Comm->flush();
-	delayus(2000);
 
-	digitalWrite(RTS_PIN,LOW);	
-	//delayus(2); 
+	while (!(UCSR1A & (1 << UDRE1))) {
+		UCSR1A |= 1 << TXC1;
+	}
+	while (!(UCSR1A & (1 << TXC1)));
+	
+	digitalWrite(RTS_PIN,LOW);	 
 
 	if (KB_DEBUG) Serial.print(" -RX:");
 
