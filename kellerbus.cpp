@@ -64,7 +64,7 @@ void CKellerBus::initDevice(uint8_t _device, uint8_t* _class, uint8_t* _group, u
 
 //################## getSerialnumber ###################
 // Takes:		-
-// Returns: Serialnumber / Error: -3
+// Returns: Serialnumber
 // Effect:	Reads the serialnumber out of the device
 
 uint32_t CKellerBus::getSerialnumber() 
@@ -103,17 +103,16 @@ float CKellerBus::readChannel(uint8_t Channel)
 		return -1000;	
 	}
 }	 
-
-//################## readScalingValues ###################
-// Takes:		length of data and response
-// Returns: -
-// Effect:	Transfer data to the device, recieve response
+//################## readScalingValue ###################
+// Takes:		index no
+// Returns: scaling value
+// Effect:	wrapper function F30
 
 float CKellerBus::readScalingValue(uint8_t no)
 {
 	uint8_t bteArr[4];
 	float value;
-	if ((no < 96) && (no >= 53) ) {
+	if ((no <= 95) && (no >= 53) ) {
 
 		// Prepare TxBuffer
 		TxBuffer[0] = device;
@@ -130,9 +129,52 @@ float CKellerBus::readScalingValue(uint8_t no)
 		return *(float*)(&bteArr[0]);
 	} else {
 		Error = SW_INVALIDPARAM;
-		return -1000;	
+		return -1;	
+	}
+}
+	
+//################## writeDeviceAddress ###################
+// Takes:		new device address
+// Returns: error code
+// Effect:	wrapper function F66, write the device address
+
+int8_t CKellerBus::writeDeviceAddress(uint8_t newAddress)
+{
+	if ((newAddress <= 250) && (newAddress >= 1) ) {
+
+		// Prepare TxBuffer
+		TxBuffer[0] = device;
+		TxBuffer[1] = 0b01111111 & 66;
+		TxBuffer[2] = newAddress;
+
+		TransferData(3,5);
+
+		device = RxBuffer[2];
+		return 1;
+	} else {
+		Error = SW_INVALIDPARAM;
+		return -1;
 	}
 }	 
+
+//################## readConfiguration ###################
+// Takes:		new device address
+// Returns: -
+// Effect:	wrapper function F100, read configuration
+
+void CKellerBus::readConfiguration(uint8_t* CFG_P, uint8_t* CFG_T, uint8_t* CNT_T)
+{
+	// Prepare TxBuffer
+	TxBuffer[0] = device;
+	TxBuffer[1] = 0b01111111 & 100;
+	TxBuffer[2] = 2;
+
+	TransferData(3,8);
+
+	*CFG_P = RxBuffer[2];
+	*CFG_T = RxBuffer[3];
+	*CNT_T = RxBuffer[6];
+}	
 
 //################## TransferData ###################
 // Takes:		length of data and response
@@ -191,32 +233,39 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
 	startTimeout = millis();
 	do {
 		if (Comm->available() > 0) {
+			// incoming byte
 			RxBuffer[b] = Comm->read();
 			if (KB_DEBUG) Serial.print(RxBuffer[b],DEC); 
 
 			if (b == 0){
 
+				// first step, check device address
 				if(device == 250) {
 					if ((RxBuffer[b] >= 1) && (RxBuffer[b] <= 250)) {
+						// device address is valid
 						b++;
 					}
 				} else {
 					if(RxBuffer[b] == device )	{
+						// same device address -> ok
 						b++;		
 					} else {
+						// wrong device address
 						if (KB_DEBUG) Serial.print("***");
 					}
 				}
 			} 
 			else if(b == 1) {
-
+  			// second step, check for function code
 				// handle exception errors (communication protocol: 3.3.2.2 / Exception errors )
 
 				if(RxBuffer[b] != (0x80 | TxBuffer[b])) {	
 
 					if( RxBuffer[b] == TxBuffer[b]) {
+					  // the transmitted and the recieved function code are the same 
 						b++;
 					} else {
+					  // function code was wrong, check for device id and do again the second step
 						if(device == 250) {
 							if ((RxBuffer[b] >= 1) || (RxBuffer[b] <= 250)) {
 								if (KB_DEBUG) Serial.print("+++");
@@ -236,11 +285,13 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
 						}
 					}
 				} else {
+					// exception error flag is set
 					b++;
 					nRX = 3;
 					if (KB_DEBUG) Serial.print(" EX ");
 				}
 			} else {
+			 // step > 2
 				b++;
 			}
 

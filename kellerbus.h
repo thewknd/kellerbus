@@ -129,6 +129,9 @@ class CKellerBus
 		float readScalingValue(uint8_t);
 		float pressureConversion(float, uint8_t);
 		float temperatureConversion(float, uint8_t);
+		int8_t writeDeviceAddress(uint8_t);
+		
+		void readConfiguration(uint8_t*,uint8_t*,uint8_t*);
 		
 		float getCH0();
 		float getP1(uint8_t);
