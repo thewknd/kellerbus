@@ -55,7 +55,9 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 #define CH_TOB1											4
 #define CH_TOB2											5
 
-#define KB_DEBUG										0
+#define KB_DEBUG										1
+
+#define delayus 										delayMicroseconds
 
 class CKellerBus
 {
@@ -82,6 +84,9 @@ class CKellerBus
 		float readChannel(uint8_t);
 		float pressureConversion(float, uint8_t);
 		float temperatureConversion(float, uint8_t);
+		
+		void setTimeout(uint16_t);
+		uint16_t getTimeout(void);
 	
 	public:	 
 		CKellerBus(HardwareSerial*, uint16_t, uint8_t, uint16_t);

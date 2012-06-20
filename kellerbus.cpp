@@ -45,8 +45,7 @@ void CKellerBus::initDevice(uint8_t _device, uint8_t* _class, uint8_t* _group, u
 		*_week = RxBuffer[5];
 		*_buffer = RxBuffer[6];
 		*_state = RxBuffer[7];
-	} 
-	else {
+	} else {
 		// 2nd try for sleeping dcx
 		delay(30);
 		TxBuffer[0] = device;
@@ -99,8 +98,7 @@ float CKellerBus::readChannel(uint8_t Channel)
 		bteArr[3] = RxBuffer[2];
 
 		return *(float*)(&bteArr[0]);
-	}
-	else {
+	} else {
 		Error = SW_INVALIDPARAM;
 		return -1000;	
 	}
@@ -132,29 +130,31 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
 	TxBuffer[nTX+1]= Crc&0xFF;	
 
 	if (KB_DEBUG) {
-		Serial.print("\nTX:");
+		Serial.print("TX:");
 		for(p = 0; p < nTX + 2; p++) {
 			Serial.print(TxBuffer[p],DEC);
 			Serial.print ("'") ;
 		}
-		Serial.println("");
+		//Serial.println("");
 	}
 
 	// Open HWSerial
 	Open();
 
 	digitalWrite(RTS_PIN,HIGH);
-	delay(2);
+	//delayus(2);
 
 	if(Comm->write(TxBuffer,(int)(nTX + 2)) != (nTX + 2)) {
 		Error = RS_TXERROR;
 	}
-	delay(5);
+	//while(bitRead(UCSR1B, TXCIE1) == 1) ;
+	Comm->flush();
+	delayus(2000);
 
 	digitalWrite(RTS_PIN,LOW);	
-	delay(1); 
+	//delayus(2); 
 
-	if (KB_DEBUG) Serial.print("RX:");
+	if (KB_DEBUG) Serial.print(" -RX:");
 
 	b = 0;	
 	startTimeout = millis();
@@ -169,12 +169,10 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
 					if ((RxBuffer[b] >= 1) && (RxBuffer[b] <= 250)) {
 						b++;
 					}
-				} 
-				else {
+				} else {
 					if(RxBuffer[b] == device )	{
 						b++;		
-					} 
-					else {
+					} else {
 						if (KB_DEBUG) Serial.print("***");
 					}
 				}
@@ -187,37 +185,31 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
 
 					if( RxBuffer[b] == TxBuffer[b]) {
 						b++;
-					} 
-					else {
+					} else {
 						if(device == 250) {
 							if ((RxBuffer[b] >= 1) || (RxBuffer[b] <= 250)) {
 								if (KB_DEBUG) Serial.print("+++");
 								RxBuffer[b-1] = RxBuffer[b]; 
-							} 
-							else {
+							} else {
 								b = 0;
 								if (KB_DEBUG) Serial.print("***");
 							}
-						} 
-						else {
+						} else {
 							if(RxBuffer[b] == device )	{
 								if (KB_DEBUG) Serial.print("+++");
 								RxBuffer[b-1] = RxBuffer[b];
-							} 
-							else {
+							} else {
 								b = 0;
 								if (KB_DEBUG) Serial.print("***");
 							}
 						}
 					}
-				} 
-				else {
+				} else {
 					b++;
 					nRX = 3;
 					if (KB_DEBUG) Serial.print(" EX ");
 				}
-			} 
-			else {
+			} else {
 				b++;
 			}
 
@@ -405,7 +397,7 @@ float CKellerBus::pressureConversion(float sValue, uint8_t targetUnit)
 //################## temperatureConversion ###################
 // Takes:	 temperature in deg celsius, target unit
 // Returns: temperature in target unit
-// Effect:	deg celsius conversion in target unit
+// Effect:	
 
 float CKellerBus::temperatureConversion(float sValue, uint8_t targetUnit) 
 {	
@@ -434,7 +426,7 @@ float CKellerBus::temperatureConversion(float sValue, uint8_t targetUnit)
 	return tValue;
 }
 
-//################## temperatureConversion ###################
+//################## getError ###################
 // Takes:	 -
 // Returns: Error code
 // Effect:	
@@ -443,3 +435,24 @@ int8_t CKellerBus::getError()
 {
 	return Error;
 }
+
+//################## setTimeout ###################
+// Takes:	 new timeout value
+// Returns: -
+// Effect:	
+
+void CKellerBus::setTimeout(uint16_t _timeout)
+{
+	timeout = _timeout;
+}
+
+//################## getTimeout ###################
+// Takes:	 -
+// Returns: timeout value
+// Effect:	
+
+uint16_t CKellerBus::getTimeout(void)
+{
+	return timeout;
+}
+
