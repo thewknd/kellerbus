@@ -138,9 +138,9 @@ float CKellerBus::readScalingValue(uint8_t no)
 // Returns: error code
 // Effect:	wrapper function F66, write the device address
 
-int8_t CKellerBus::writeDeviceAddress(uint8_t newAddress)
+void CKellerBus::writeDeviceAddress(uint8_t newAddress)
 {
-	if ((newAddress <= 250) && (newAddress >= 1) ) {
+	if ((newAddress <= 250) && (newAddress >= 0) ) {
 
 		// Prepare TxBuffer
 		TxBuffer[0] = device;
@@ -150,10 +150,8 @@ int8_t CKellerBus::writeDeviceAddress(uint8_t newAddress)
 		TransferData(3,5);
 
 		device = RxBuffer[2];
-		return 1;
 	} else {
 		Error = SW_INVALIDPARAM;
-		return -1;
 	}
 }	 
 
@@ -174,6 +172,44 @@ void CKellerBus::readConfiguration(uint8_t* CFG_P, uint8_t* CFG_T, uint8_t* CNT_
 	*CFG_P = RxBuffer[2];
 	*CFG_T = RxBuffer[3];
 	*CNT_T = RxBuffer[6];
+}	
+
+//################## readDeviceTime ###################
+// Takes:		-
+// Returns: internal device time
+// Effect:	wrapper function F92 / device time
+
+time_t CKellerBus::readDeviceTime(void)
+{
+	uint32_t diff;
+	
+	// Prepare TxBuffer
+	TxBuffer[0] = device;
+	TxBuffer[1] = 0b01111111 & 92;
+	TxBuffer[2] = 3;
+	
+	TransferData(3,9);
+	
+	Serial.print("RxBuffer[2]: ");
+  Serial.println(RxBuffer[2]);
+  Serial.print("RxBuffer[3]: ");
+  Serial.println(RxBuffer[3]);
+  Serial.print("RxBuffer[4]: ");
+  Serial.println(RxBuffer[4]);
+  Serial.print("RxBuffer[5]: ");
+  Serial.println(RxBuffer[5]);
+	
+	//diff = (2^16 * RxBuffer[3]) + (2^8 * RxBuffer[4]) + RxBuffer[5];
+	diff = (2^24 * RxBuffer[2]) + (2^16 * RxBuffer[3]) + (2^8 * RxBuffer[4]) + RxBuffer[5];
+
+  Serial.print("diff: ");
+  Serial.println(diff);
+	setTime(0,0,0,1,1,2000);
+	adjustTime(diff);
+  
+  deviceTime = now();
+  
+	return deviceTime;
 }	
 
 //################## TransferData ###################
@@ -538,3 +574,12 @@ uint16_t CKellerBus::getTimeout(void)
 	return timeout;
 }
 
+//################## getDeviceAddress ###################
+// Takes:	 -
+// Returns: device address
+// Effect:	
+
+uint8_t CKellerBus::getDeviceAddress(void)
+{
+	return device;
+}

@@ -4,6 +4,7 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 
 #include <Arduino.h>
 #include <CRC16.h>
+#include <Time.h>
 
 #ifndef _H_KELLERBUS
 #define _H_KELLERBUS
@@ -108,6 +109,8 @@ class CKellerBus
 		int8_t Error;
 	
 		uint8_t device;
+		
+		time_t deviceTime;
 	
 		void Open();
 		void Close();
@@ -122,16 +125,18 @@ class CKellerBus
 		void initDevice(uint8_t _device); 
 		void initDevice(uint8_t, uint8_t*, uint8_t*, uint8_t*, uint8_t*, uint8_t*, uint8_t*); 
 	
-		uint8_t getDevice();
+		uint8_t getDeviceAddress();
 		uint32_t getSerialnumber();
 		
 		float readChannel(uint8_t);
 		float readScalingValue(uint8_t);
 		float pressureConversion(float, uint8_t);
 		float temperatureConversion(float, uint8_t);
-		int8_t writeDeviceAddress(uint8_t);
+		void writeDeviceAddress(uint8_t);
 		
 		void readConfiguration(uint8_t*,uint8_t*,uint8_t*);
+		
+		time_t readDeviceTime(void);
 		
 		float getCH0();
 		float getP1(uint8_t);
