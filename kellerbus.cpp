@@ -28,7 +28,7 @@ void CKellerBus::initDevice(uint8_t _device)
 		TxBuffer[0] = device;
 		TxBuffer[1] = 0b01111111 & 48;
 		TransferData(2,10);
-	}
+	} 
 }
 
 void CKellerBus::initDevice(uint8_t _device, uint8_t* _class, uint8_t* _group, uint8_t* _year, uint8_t* _week, uint8_t* _buffer, uint8_t* _state) 
@@ -38,28 +38,22 @@ void CKellerBus::initDevice(uint8_t _device, uint8_t* _class, uint8_t* _group, u
 	TxBuffer[1] = 0b01111111 & 48;
 
 	TransferData(2,10);
-	if (Error == RS_OK) {
-		*_class = RxBuffer[2];
-		*_group = RxBuffer[3];
-		*_year = RxBuffer[4];
-		*_week = RxBuffer[5];
-		*_buffer = RxBuffer[6];
-		*_state = RxBuffer[7];
-	} else {
+	if (Error != RS_OK) {
 		// 2nd try for sleeping dcx
 		delay(30);
 		TxBuffer[0] = device;
 		TxBuffer[1] = 0b01111111 & 48;
 		TransferData(2,10);
-		if (Error == RS_OK) {
-			*_class = RxBuffer[2];
-			*_group = RxBuffer[3];
-			*_year = RxBuffer[4];
-			*_week = RxBuffer[5];
-			*_buffer = RxBuffer[6];
-			*_state = RxBuffer[7];
-		} 
 	}
+	
+  if (Error == RS_OK) {
+    *_class = RxBuffer[2];
+    *_group = RxBuffer[3];
+    *_year = RxBuffer[4];
+    *_week = RxBuffer[5];
+    *_buffer = RxBuffer[6];
+    *_state = RxBuffer[7];
+  } 
 }
 
 //################## getSerialnumber ###################
@@ -181,32 +175,16 @@ void CKellerBus::readConfiguration(uint8_t* CFG_P, uint8_t* CFG_T, uint8_t* CNT_
 
 time_t CKellerBus::readDeviceTime(void)
 {
-	uint32_t diff;
-	
 	// Prepare TxBuffer
 	TxBuffer[0] = device;
 	TxBuffer[1] = 0b01111111 & 92;
 	TxBuffer[2] = 3;
 	
 	TransferData(3,9);
-	
-	Serial.print("RxBuffer[2]: ");
-  Serial.println(RxBuffer[2]);
-  Serial.print("RxBuffer[3]: ");
-  Serial.println(RxBuffer[3]);
-  Serial.print("RxBuffer[4]: ");
-  Serial.println(RxBuffer[4]);
-  Serial.print("RxBuffer[5]: ");
-  Serial.println(RxBuffer[5]);
-	
-	//diff = (2^16 * RxBuffer[3]) + (2^8 * RxBuffer[4]) + RxBuffer[5];
-	diff = (2^24 * RxBuffer[2]) + (2^16 * RxBuffer[3]) + (2^8 * RxBuffer[4]) + RxBuffer[5];
-
-  Serial.print("diff: ");
-  Serial.println(diff);
+		
 	setTime(0,0,0,1,1,2000);
-	adjustTime(diff);
-  
+	adjustTime((pow(2,24) * RxBuffer[2]) + (pow(2,16) * RxBuffer[3]) + (pow(2,8) * RxBuffer[4]) + RxBuffer[5]);
+
   deviceTime = now();
   
 	return deviceTime;
@@ -231,7 +209,6 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
 	}
 	b = 0;
 
-
 	// generate checksum	
 	Crc = checksum.CRC16(TxBuffer,nTX);
 	TxBuffer[nTX]= (Crc>>8)&0xFF; 
@@ -243,7 +220,6 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
 			Serial.print(TxBuffer[p],DEC);
 			Serial.print ("'") ;
 		}
-		//Serial.println("");
 	}
 
 	// Open HWSerial

@@ -13,15 +13,11 @@
 
 CKellerBus kbus(&Serial1,9600,5,250);
 
-char pUnit[] = "bar";
-char tUnit[] = "C";
 time_t kbusTime;
 
 void setup() {
   Serial.begin(115200);
   while (!Serial) ;
-
-
 }
 
 
