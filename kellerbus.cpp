@@ -184,7 +184,6 @@ void CKellerBus::readConfiguration(uint8_t* CFG_P, uint8_t* CFG_T, uint8_t* CNT_
     *CNT_T = RxBuffer[6];
   }
 } 
-
 //################## readDeviceTime ###################
 // Takes:   -
 // Returns: internal device time
@@ -208,17 +207,38 @@ time_t CKellerBus::readDeviceTime(void)
     c3 = (uint32_t)pow(2UL,8UL) * (uint32_t)RxBuffer[4];
     c4 = (uint32_t)RxBuffer[5];
     
-    since2000 = c1 + c2 + c3 + c4;
+    //since2000 = c1 + c2 + c3 + c4;
      
     setTime(0, 0, 0, 1, 1, 2000); // hr - min - sec - day - month - year
     
-    adjustTime(since2000);
-    deviceTime = now();
+    adjustTime(c1 + c2 + c3 + c4);
+    return now();
   
   } else {
-    deviceTime = -1;
+    return -1;
   }
-  return deviceTime;
+} 
+//################## readBatCapacity ###################
+// Takes:   -
+// Returns: internal battery capacity
+// Effect:  wrapper function F92 
+
+int8_t CKellerBus::readBatCapacity(void)
+{
+  uint32_t since2000,c1,c2,c3,c4;
+   
+  // Prepare TxBuffer
+  TxBuffer[0] = device;
+  TxBuffer[1] = 0b01111111 & 92;
+  TxBuffer[2] = 8;
+  
+  TransferData(3,9); 
+  
+  if(Error == RS_OK) {
+    return RxBuffer[6]; 
+  } else {
+    return -1;
+  }
 } 
 
 //################## writeDeviceTime ###################

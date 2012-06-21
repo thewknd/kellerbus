@@ -108,8 +108,6 @@ class CKellerBus
     int8_t Error;
   
     uint8_t device;
-    
-    time_t deviceTime;
   
     void Open(void);
     void Close(void);
@@ -134,6 +132,8 @@ class CKellerBus
     void writeDeviceAddress(uint8_t);
     
     void readConfiguration(uint8_t*, uint8_t*, uint8_t*);
+    
+    int8_t readBatCapacity(void);
     
     time_t readDeviceTime(void);
     void writeDeviceTime(uint8_t, uint8_t, uint16_t, uint8_t, uint8_t, uint8_t);

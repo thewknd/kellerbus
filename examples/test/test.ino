@@ -44,6 +44,8 @@ void loop() {
   Serial.print("DEVICE ADDRESS  : ");
   kbus.writeDeviceAddress(0);
   Serial.println(kbus.getDeviceAddress(),DEC);
+  Serial.print("BAT. CAPACITY   : ");
+  Serial.println(kbus.readBatCapacity(),DEC);
   kbusTime = kbus.readDeviceTime(); 
   Serial.print("DEVICE TIME     : "); 
   Serial.print(day(kbusTime),DEC);
