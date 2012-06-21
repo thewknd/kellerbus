@@ -2,13 +2,12 @@
 This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported License. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/3.0/ or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
  */
 
-#include <Arduino.h>
-#include <CRC16.h>
-#include <Time.h>
-
 #ifndef _H_KELLERBUS
 #define _H_KELLERBUS
 
+#include <Arduino.h>
+#include <CRC16.h>
+#include <Time.h>
 
 // Error codes
 #define RS_OK                       0
@@ -112,8 +111,8 @@ class CKellerBus
     
     time_t deviceTime;
   
-    void Open();
-    void Close();
+    void Open(void);
+    void Close(void);
   
     void TransferData(uint8_t, uint8_t);
   
@@ -125,8 +124,8 @@ class CKellerBus
     void initDevice(uint8_t _device); 
     void initDevice(uint8_t, uint8_t*, uint8_t*, uint8_t*, uint8_t*, uint8_t*, uint8_t*); 
   
-    uint8_t getDeviceAddress();
-    uint32_t getSerialnumber();
+    uint8_t getDeviceAddress(void);
+    uint32_t getSerialnumber(void);
     
     float readChannel(uint8_t);
     float readScalingValue(uint8_t);
@@ -134,9 +133,10 @@ class CKellerBus
     float temperatureConversion(float, uint8_t);
     void writeDeviceAddress(uint8_t);
     
-    void readConfiguration(uint8_t*,uint8_t*,uint8_t*);
+    void readConfiguration(uint8_t*, uint8_t*, uint8_t*);
     
     time_t readDeviceTime(void);
+    void writeDeviceTime(uint8_t, uint8_t, uint16_t, uint8_t, uint8_t, uint8_t);
     
     float getCH0();
     float getP1(uint8_t);

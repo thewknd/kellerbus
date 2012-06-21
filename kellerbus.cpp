@@ -61,15 +61,19 @@ void CKellerBus::initDevice(uint8_t _device, uint8_t* _class, uint8_t* _group, u
 // Returns: Serialnumber
 // Effect:  Reads the serialnumber out of the device
 
-uint32_t CKellerBus::getSerialnumber() 
+uint32_t CKellerBus::getSerialnumber(void) 
 {
   TxBuffer[0] = device;
   TxBuffer[1] = 0b01111111 & 69;
 
   TransferData(2,8);
-
-  // Serialnumber calculation, see protocol documentation
-  return 256*65536*(uint32_t)RxBuffer[2] + 65536*(uint32_t)RxBuffer[3] + 256*(uint32_t)RxBuffer[4] + (uint32_t)RxBuffer[5];
+  
+  if (Error == RS_OK) {
+    // Serialnumber calculation, see protocol documentation
+    return 256*65536*(uint32_t)RxBuffer[2] + 65536*(uint32_t)RxBuffer[3] + 256*(uint32_t)RxBuffer[4] + (uint32_t)RxBuffer[5];
+  } else {
+    return -1;
+  }
 }
 
 
@@ -85,13 +89,18 @@ float CKellerBus::readChannel(uint8_t Channel)
     TxBuffer[2] = Channel;
 
     TransferData(3,9);
+    
+    if(Error == RS_OK) {
+      bteArr[0] = RxBuffer[5];
+      bteArr[1] = RxBuffer[4];
+      bteArr[2] = RxBuffer[3];
+      bteArr[3] = RxBuffer[2];
 
-    bteArr[0] = RxBuffer[5];
-    bteArr[1] = RxBuffer[4];
-    bteArr[2] = RxBuffer[3];
-    bteArr[3] = RxBuffer[2];
-
-    return *(float*)(&bteArr[0]);
+      return *(float*)(&bteArr[0]);
+      
+    } else {
+      return -1;
+    }
   } else {
     Error = SW_INVALIDPARAM;
     return -1000; 
@@ -114,13 +123,17 @@ float CKellerBus::readScalingValue(uint8_t no)
     TxBuffer[2] = no;
 
     TransferData(3,8);
-
-    bteArr[0] = RxBuffer[5];
-    bteArr[1] = RxBuffer[4];
-    bteArr[2] = RxBuffer[3];
-    bteArr[3] = RxBuffer[2];
-
-    return *(float*)(&bteArr[0]);
+    
+    if(Error == RS_OK) {
+      bteArr[0] = RxBuffer[5];
+      bteArr[1] = RxBuffer[4];
+      bteArr[2] = RxBuffer[3];
+      bteArr[3] = RxBuffer[2];
+      return *(float*)(&bteArr[0]);
+    } else {
+      return -1;
+    }
+    
   } else {
     Error = SW_INVALIDPARAM;
     return -1;  
@@ -142,8 +155,10 @@ void CKellerBus::writeDeviceAddress(uint8_t newAddress)
     TxBuffer[2] = newAddress;
 
     TransferData(3,5);
-
-    device = RxBuffer[2];
+    
+    if(Error == RS_OK) {
+      device = RxBuffer[2];
+    }
   } else {
     Error = SW_INVALIDPARAM;
   }
@@ -161,11 +176,13 @@ void CKellerBus::readConfiguration(uint8_t* CFG_P, uint8_t* CFG_T, uint8_t* CNT_
   TxBuffer[1] = 0b01111111 & 100;
   TxBuffer[2] = 2;
 
-  TransferData(3,8);
-
-  *CFG_P = RxBuffer[2];
-  *CFG_T = RxBuffer[3];
-  *CNT_T = RxBuffer[6];
+  TransferData(3,9);
+  
+  if(Error == RS_OK) {
+    *CFG_P = RxBuffer[2];
+    *CFG_T = RxBuffer[3];
+    *CNT_T = RxBuffer[6];
+  }
 } 
 
 //################## readDeviceTime ###################
@@ -175,25 +192,75 @@ void CKellerBus::readConfiguration(uint8_t* CFG_P, uint8_t* CFG_T, uint8_t* CNT_
 
 time_t CKellerBus::readDeviceTime(void)
 {
+  uint32_t since2000,c1,c2,c3,c4;
+   
   // Prepare TxBuffer
   TxBuffer[0] = device;
   TxBuffer[1] = 0b01111111 & 92;
   TxBuffer[2] = 3;
   
-  TransferData(3,9);
-    
-  setTime(0,0,0,1,1,2000);
-  adjustTime((pow(2,24) * RxBuffer[2]) + (pow(2,16) * RxBuffer[3]) + (pow(2,8) * RxBuffer[4]) + RxBuffer[5]);
-
-  deviceTime = now();
+  TransferData(3,9); 
   
+  if(Error == RS_OK) {
+   
+    c1 = (uint32_t)pow(2UL,24UL) * (uint32_t)RxBuffer[2];
+    c2 = (uint32_t)pow(2UL,16UL) * (uint32_t)RxBuffer[3];
+    c3 = (uint32_t)pow(2UL,8UL) * (uint32_t)RxBuffer[4];
+    c4 = (uint32_t)RxBuffer[5];
+    
+    since2000 = c1 + c2 + c3 + c4;
+     
+    setTime(0, 0, 0, 1, 1, 2000); // hr - min - sec - day - month - year
+    
+    adjustTime(since2000);
+    deviceTime = now();
+  
+  } else {
+    deviceTime = -1;
+  }
   return deviceTime;
 } 
 
+//################## writeDeviceTime ###################
+// Takes:   new device time
+// Returns: 
+// Effect:  wrapper function F93 / sets device time
+
+void CKellerBus::writeDeviceTime(uint8_t _day, uint8_t _month, uint16_t _year, uint8_t _hour, uint8_t _minute, uint8_t _second)
+{
+  uint32_t since2000,c1,c2,c3,c4;
+  
+  setTime(0, 0, 0, 1, 1, 2000); // hr - min - sec - day - month - year
+  since2000 = now();
+  setTime(_hour, _minute, _second, _day, _month, _year); // hr - min - sec - day - month - year
+  
+  since2000 = now() - since2000;
+  
+  c1 = since2000 / (uint32_t)pow(2UL,24UL);
+  since2000 = since2000 % (uint32_t)pow(2UL,24UL);
+  c2 = since2000 / (uint32_t)pow(2UL,16UL);
+  since2000 = since2000 % (uint32_t)pow(2UL,16UL);
+  c3 = since2000 / (uint32_t)pow(2UL,8UL);
+  since2000 = since2000 % (uint32_t)pow(2UL,8UL);
+  c4 = since2000;
+  
+  // Prepare TxBuffer
+  TxBuffer[0] = device;
+  TxBuffer[1] = 0b01111111 & 93;
+  TxBuffer[2] = 3;
+  TxBuffer[3] = c1;
+  TxBuffer[4] = c2;
+  TxBuffer[5] = c3;
+  TxBuffer[6] = c4;
+  TxBuffer[7] = 0; // not used
+  
+  TransferData(8,5);  
+} 
+
 //################## TransferData ###################
-// Takes:   length of data and response
+// Takes:   length of data and response, nTX without CRC16b ytes, nRX with CRC16 bytes
 // Returns: -
-// Effect:  Transfer data to the device, recieve response
+// Effect:  Transfer data to the device, receive response
 
 void CKellerBus::TransferData(byte nTX, byte nRX) 
 {
@@ -381,7 +448,7 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
   if (KB_DEBUG) Serial.println(Error);
 }
 
-float CKellerBus::getCH0() 
+float CKellerBus::getCH0(void) 
 {
   return readChannel(CH_0);
 }
@@ -417,13 +484,13 @@ float CKellerBus::getT(uint8_t unit)
 }
 
 
-void CKellerBus::Open()
+void CKellerBus::Open(void)
 {
   Comm->begin(baudrate);  
 }
 
 
-void CKellerBus::Close()
+void CKellerBus::Close(void)
 {
   Comm->end();
 }
@@ -525,7 +592,7 @@ float CKellerBus::temperatureConversion(float sValue, uint8_t targetUnit)
 // Returns: Error code
 // Effect:  
 
-int8_t CKellerBus::getError()
+int8_t CKellerBus::getError(void)
 {
   return Error;
 }

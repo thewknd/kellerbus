@@ -13,6 +13,7 @@
 
 CKellerBus kbus(&Serial1,9600,5,250);
 
+
 time_t kbusTime;
 
 void setup() {
@@ -57,7 +58,7 @@ void loop() {
   Serial.print(":");
   Serial.print(second(kbusTime),DEC);
   Serial.println(" (d:m:y h:m:s)");
-  
+
   Serial.println("\n\r- Configuration -");
   kbus.readConfiguration(&cfg_p,&cfg_t,&cnt_t);
   Serial.print("CFG_P           : ");
