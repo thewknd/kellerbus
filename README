@@ -24,7 +24,7 @@ kellerbus, a library for arduino
 
 == how to install == 
 (1)
-donload and copy the kellebus folder to your Arduino library directory
+download and copy the kellebus folder to your Arduino library directory
 on mac/linux: ~/Arduino/libraries/
 
 (2)
