@@ -1,4 +1,4 @@
-# kellerbus, a library for arduino
+ kellerbus, a library for arduino
 
 ## requirements
 - Arduino IDE 1.0.1
@@ -37,8 +37,8 @@ Select an example from the Examples/kellerbus menu
 connect your compatible* Keller transducer
 
 
-wire 
----------------------------------------------------------------------------
+### wire 
+
 Arduino Leonardo - RS485 Transceiver - Keller Transducer
 
 devices with external power supply
