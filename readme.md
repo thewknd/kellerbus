@@ -1,9 +1,9 @@
- kellerbus, a library for arduino
+### kellerbus, a library for arduino
 
 ## requirements
 - Arduino IDE 1.0.1
 - a free hardware serial interface (works best with Arduino Leonardo, Mega, Mega2560)
-- RS485 compatible Transceiver, like MAX487
+- RS485 compatible transceiver, like MAX487
 
 ## features
 - read serialnumber
@@ -23,18 +23,16 @@
 - read record (DCX)
 
 ## how to install
-1.
-download and copy the kellebus folder to your Arduino library directory
-on mac/linux: ~/Arduino/libraries/
+1. download and copy the kellebus folder to your Arduino library directory
+on mac: /Users/*username*/Documents/Arduino
 
-2.
-restart the Arduino IDE
+2. restart the Arduino IDE
 
-3.
-Select an example from the Examples/kellerbus menu
+3. Select an example from the Examples/kellerbus menu
 
-4.
-connect your compatible* Keller transducer
+4. connect your compatible* Keller transducer
+
+5. upload your code to the Arduino and start the serial monitor
 
 
 ### wire 
@@ -51,8 +49,6 @@ devices with internal power supply
 4 - BLUE - RS485A
 5 - YELLOW - RS485B
 
-5.
-upload your code to the Arduino and start the serial monitor
 
 (*)compatible are transducers with digital RS485 output
 eg Series 33X/35X/36X/39X/41X/46X/DCX

@@ -191,7 +191,7 @@ void CKellerBus::readConfiguration(uint8_t* CFG_P, uint8_t* CFG_T, uint8_t* CNT_
 
 time_t CKellerBus::readDeviceTime(void)
 {
-  uint32_t since2000,c1,c2,c3,c4;
+  uint32_t c1,c2,c3,c4;
    
   // Prepare TxBuffer
   TxBuffer[0] = device;
@@ -206,8 +206,6 @@ time_t CKellerBus::readDeviceTime(void)
     c2 = (uint32_t)pow(2UL,16UL) * (uint32_t)RxBuffer[3];
     c3 = (uint32_t)pow(2UL,8UL) * (uint32_t)RxBuffer[4];
     c4 = (uint32_t)RxBuffer[5];
-    
-    //since2000 = c1 + c2 + c3 + c4;
      
     setTime(0, 0, 0, 1, 1, 2000); // hr - min - sec - day - month - year
     
@@ -225,8 +223,6 @@ time_t CKellerBus::readDeviceTime(void)
 
 int8_t CKellerBus::readBatCapacity(void)
 {
-  uint32_t since2000,c1,c2,c3,c4;
-   
   // Prepare TxBuffer
   TxBuffer[0] = device;
   TxBuffer[1] = 0b01111111 & 92;
