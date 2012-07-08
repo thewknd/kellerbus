@@ -113,6 +113,8 @@ class CKellerBus
     void close(void);
   
     void TransferData(uint8_t, uint8_t);
+    
+    float readChannel(uint8_t);
   
   public:  
   
@@ -126,7 +128,7 @@ class CKellerBus
     uint8_t getDeviceAddress(void);
     uint32_t getSerialnumber(void);
     
-    float readChannel(uint8_t);
+    
     float readScalingValue(uint8_t);
     float pressureConversion(float, uint8_t);
     float temperatureConversion(float, uint8_t);
