@@ -4,6 +4,19 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 
 #include <kellerbus.h>
 
+
+/*
+  Constructor: CKellerBus
+  
+  sets up the interface to the transmitter
+  
+  Parameters:
+  _comm - Hardwareserial port.
+  _baudrate - Baudrate for the hardwareserial port, usually 9600.
+  _rts - Ready To Send Pin.
+  _timeout - Communication timeout, in milliseconds, usually 100 (250 for DCX).
+*/
+
 CKellerBus::CKellerBus(HardwareSerial* _comm, uint16_t _baudrate, uint8_t _rts, uint16_t _timeout)
 {
   baudrate = _baudrate;
@@ -14,6 +27,15 @@ CKellerBus::CKellerBus(HardwareSerial* _comm, uint16_t _baudrate, uint8_t _rts, 
   pinMode(RTS_PIN,OUTPUT);
   digitalWrite(RTS_PIN,LOW);
 }
+
+/*
+  Function: initDevice
+  
+  Device initialization. Wrapper for F48.
+  
+  Parameters:
+  _device - device address.  
+*/
 
 void CKellerBus::initDevice(uint8_t _device) 
 {
@@ -30,6 +52,21 @@ void CKellerBus::initDevice(uint8_t _device)
     TransferData(2,10);
   } 
 }
+
+/*
+  Function: initDevice
+  
+  Device initialization. Wrapper for F48.
+  
+  Parameters:
+  _device - Device address.  
+  _class - Pointer for the device class. 
+  _group - Pointer for the device group.
+  _year - Pointer for the software version (year).
+  _week - Pointer for the software version (week).
+  _buffer - Buffer size.
+  _state - Device state.    
+*/
 
 void CKellerBus::initDevice(uint8_t _device, uint8_t* _class, uint8_t* _group, uint8_t* _year, uint8_t* _week, uint8_t* _buffer, uint8_t* _state) 
 {
@@ -56,10 +93,14 @@ void CKellerBus::initDevice(uint8_t _device, uint8_t* _class, uint8_t* _group, u
   } 
 }
 
-//################## getSerialnumber ###################
-// Takes:   -
-// Returns: Serialnumber
-// Effect:  Reads the serialnumber out of the device
+/*
+  Function: getSerialnumber
+  
+  Returns the serialnumber.
+  
+  Returns:
+  serialnumber 
+*/
 
 uint32_t CKellerBus::getSerialnumber(void) 
 {
@@ -106,10 +147,44 @@ float CKellerBus::readChannel(uint8_t Channel)
     return -1000; 
   }
 }  
-//################## readScalingValue ###################
-// Takes:   index no
-// Returns: scaling value
-// Effect:  wrapper function F30
+
+/*
+  Function: readScalingValue
+  
+  Returns the scaling value. Wrapper function F30.
+  
+  Parameters:
+  no - Index of the scaling value.
+
+  _available values for "no"_
+
+  - OFFSET_P1               
+  - GAIN_P1         
+  - OFFSET_P2                   
+  - GAIN_P2                     
+  - OFFSET_ANALOG               
+  - GAIN_ANALOG                 
+  - OFFSET_CH0                  
+  - GAIN_CH0                    
+  - MIN_P1                      
+  - MAX_P1                      
+  - MIN_P2                      
+  - MAX_P2                      
+  - MIN_T                       
+  - MAX_T                       
+  - MIN_TOB1                    
+  - MAX_TOB1                    
+  - MIN_TOB2                    
+  - MAX_TOB2                    
+  - MIN_CH0                     
+  - MAX_CH0                     
+  - MIN_ANALOG                  
+  - MAX_ANALOG   
+                 
+  Returns:
+  Scaling value.
+*/
+
 
 float CKellerBus::readScalingValue(uint8_t no)
 {
@@ -140,10 +215,14 @@ float CKellerBus::readScalingValue(uint8_t no)
   }
 }
   
-//################## writeDeviceAddress ###################
-// Takes:   new device address
-// Returns: error code
-// Effect:  wrapper function F66, write the device address
+/*
+  Function: writeDeviceAddress
+  
+  Sets the device address. 
+  
+  Parameters:
+  newAddress - The new device address.
+*/
 
 void CKellerBus::writeDeviceAddress(uint8_t newAddress)
 {
@@ -164,10 +243,16 @@ void CKellerBus::writeDeviceAddress(uint8_t newAddress)
   }
 }  
 
-//################## readConfiguration ###################
-// Takes:   new device address
-// Returns: -
-// Effect:  wrapper function F100, read configuration
+/*
+  Function: readConfiguration
+  
+  wrapper function F100, read configuration
+  
+  Parameters:
+  CFG_P - Pointer for the register CFG_P.
+  CFG_T - Pointer for the register CFG_T.
+  CNT_T - Pointer for the register CNT_T.
+*/
 
 void CKellerBus::readConfiguration(uint8_t* CFG_P, uint8_t* CFG_T, uint8_t* CNT_T)
 {
@@ -184,10 +269,15 @@ void CKellerBus::readConfiguration(uint8_t* CFG_P, uint8_t* CFG_T, uint8_t* CNT_
     *CNT_T = RxBuffer[6];
   }
 } 
-//################## readDeviceTime ###################
-// Takes:   -
-// Returns: internal device time
-// Effect:  wrapper function F92 / device time
+
+/*
+  Function: readDeviceTime
+  
+  Returns the device time
+  
+  Returns:
+  Device time in seconds since 1.1 1970 (unix time)
+*/
 
 time_t CKellerBus::readDeviceTime(void)
 {
@@ -216,10 +306,15 @@ time_t CKellerBus::readDeviceTime(void)
     return -1;
   }
 } 
-//################## readBatCapacity ###################
-// Takes:   -
-// Returns: internal battery capacity
-// Effect:  wrapper function F92 
+
+/*
+  Function: readBatCapacity
+  
+  Returns the battery capacity.
+  
+  Returns:
+  Battery caoacity in percent.
+*/
 
 int8_t CKellerBus::readBatCapacity(void)
 {
@@ -237,10 +332,19 @@ int8_t CKellerBus::readBatCapacity(void)
   }
 } 
 
-//################## writeDeviceTime ###################
-// Takes:   new device time
-// Returns: 
-// Effect:  wrapper function F93 / sets device time
+/*
+  Function: writeDeviceTime
+  
+  Sets the device time.
+  
+  Parameters:
+  _day - Days of the new date.
+  _month - Months of the new date.
+  _year - Years of the new date.
+  _hour - Hours of the new time.
+  _minute - Minutes of the new time.
+  _second - Seconds of the new time.
+*/
 
 void CKellerBus::writeDeviceTime(uint8_t _day, uint8_t _month, uint16_t _year, uint8_t _hour, uint8_t _minute, uint8_t _second)
 {
@@ -273,10 +377,15 @@ void CKellerBus::writeDeviceTime(uint8_t _day, uint8_t _month, uint16_t _year, u
   TransferData(8,5);  
 } 
 
-//################## TransferData ###################
-// Takes:   length of data and response, nTX without CRC16b ytes, nRX with CRC16 bytes
-// Returns: -
-// Effect:  Transfer data to the device, receive response
+/*
+  Function: TransferData
+  
+  Transmits the TXBuffer to the device. 
+  
+  Parameters:
+  nTX - Amount of bytes for transmission, without the checksum.
+  nRX - Amount of bytes for the response, with the checksum.
+*/
 
 void CKellerBus::TransferData(byte nTX, byte nRX) 
 {
@@ -306,7 +415,7 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
   }
 
   // Open HWSerial
-  Open();
+  open();
 
   digitalWrite(RTS_PIN,HIGH);
   delay (1);
@@ -459,16 +568,39 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
   }  
 
   // Close HWSerial
-  Close();
+  close();
   if (KB_DEBUG) Serial.print("Fehler:");
   if (KB_DEBUG) Serial.println(Error);
 }
+
+/*
+  Function: getCH0
+  
+  Returns the value for CH0.
+  
+  Returns:
+  Value for CH0.
+*/
 
 float CKellerBus::getCH0(void) 
 {
   return readChannel(CH_0);
 }
 
+/*
+  Function: getP1
+  
+  Returns the value for P1.
+  
+  Parameter:  
+  unit - Pressure unit.
+  
+  Returns:  
+  Value for P1.
+  
+  See:  
+  For available values for "unit", see <pressureConversion>.
+*/
 
 float CKellerBus::getP1(uint8_t unit) 
 { 
@@ -476,45 +608,139 @@ float CKellerBus::getP1(uint8_t unit)
 }
 
 
+/*
+  Function: getP2
+  
+  Returns the value for P2.
+  
+  Parameter: 
+  unit - Pressure unit.
+  
+  Returns:
+  Value for P2.
+  
+  See:
+  For available values for "unit", see <pressureConversion>.
+*/
+
 float CKellerBus::getP2(uint8_t unit) 
 {
   return pressureConversion(readChannel(CH_P2),unit);
 }
 
 
+/*
+  Function: getTOB1
+  
+  Returns the value for TOB1.
+  
+  Parameter:
+  unit - Temperature unit.
+  
+  Returns:
+  Value for TOB1.
+  
+  See:
+  For available values for "unit", see <temperatureConversion>.
+*/
+
 float CKellerBus::getTOB1(uint8_t unit) 
 {
   return temperatureConversion(readChannel(CH_TOB1),unit);
 }
 
+/*
+  Function: getTOB2
+  
+  Returns the value for TOB2.
+  
+  Parameter:
+  unit - Temperature unit.
+  
+  Returns:
+  Value for TOB2.
+  
+  See:
+  For available values for "unit", see <temperatureConversion>.
+*/
 
 float CKellerBus::getTOB2(uint8_t unit) 
 {
   return temperatureConversion(readChannel(CH_TOB2),unit);
 }
 
+/*
+  Function: getT
+  
+  Returns the value for T.
+  
+  Parameter:
+  unit - Temperature unit.
+  
+  Returns:
+  Value for T.
+  
+  See:
+  For available values for "unit", see <temperatureConversion>.
+*/
 
 float CKellerBus::getT(uint8_t unit) 
 {
   return temperatureConversion(readChannel(CH_T),unit);
 }
 
+/*
+  Function: open
+  
+  Open the hardwareserial port
+*/
 
-void CKellerBus::Open(void)
+void CKellerBus::open(void)
 {
   Comm->begin(baudrate);  
 }
 
+/*
+  Function: close
+  
+  Close the hardwareserial port
+*/
 
-void CKellerBus::Close(void)
+void CKellerBus::close(void)
 {
   Comm->end();
 }
 
-//################## pressureConversion ###################
-// Takes:   target unit, Pressure in bar
-// Returns: Pressure in target unit
-// Effect:  bar in target unit conversion
+/*
+  Function: pressureConversion
+  
+  Converts the pressure value.
+  
+  Parameter:
+  sValue - pressure in bar
+  unit - Target pressure unit.
+   
+  _available values for "unit"_
+
+  - P_BAR    conversion to Bar
+  - P_MBAR   conversion to mBar
+  - P_PSI    conversion to Psi
+  - P_PA     conversion to Pascal
+  - P_HPA    conversion to hPascal
+  - P_KPA    conversion to kPascal
+  - P_MPA    conversion to MPascal
+  - P_MH2O   conversion to mH2O
+  - P_MWS    conversion to mWs Meter Wassersäule
+  - P_MWG    conversion to mWg meters, water gauge
+  - P_INHG   conversion to inHg
+  - P_MMHG   conversion to mmHg
+  - P_INH2O  conversion to inH2O
+  - P_TORR   conversion to Torr
+  - P_FTH2O  conversion to ftH2O
+  
+  Returns:
+  Converted pressure value.
+*/
 
 float CKellerBus::pressureConversion(float sValue, uint8_t targetUnit) 
 { 
@@ -571,10 +797,25 @@ float CKellerBus::pressureConversion(float sValue, uint8_t targetUnit)
   return pValue;
 }
 
-//################## temperatureConversion ###################
-// Takes:  temperature in deg celsius, target unit
-// Returns: temperature in target unit
-// Effect:  
+/*
+  Function: temperatureConversion
+  
+  Converts the temperature value.
+  
+  Parameter:
+  sValue - temperature in deg celsius
+  unit - Target temperature unit.
+  
+  _available values for "unit"_
+
+  - T_DEGC  conversion to °C Celsius
+  - T_DEGK  conversion to °K Kelvin
+  - T_DEGF  conversion to °F Fahreinheit
+  - T_DEGR  conversion to °R Rankine
+  
+  Returns:
+  Converted temperature value.
+*/ 
 
 float CKellerBus::temperatureConversion(float sValue, uint8_t targetUnit) 
 { 
@@ -603,40 +844,56 @@ float CKellerBus::temperatureConversion(float sValue, uint8_t targetUnit)
   return tValue;
 }
 
-//################## getError ###################
-// Takes:  -
-// Returns: Error code
-// Effect:  
+/*
+  Function: getError
+  
+  Reads the last error code.
+  
+  Returns:
+  Error code.
+*/ 
 
 int8_t CKellerBus::getError(void)
 {
   return Error;
 }
 
-//################## setTimeout ###################
-// Takes:  new timeout value
-// Returns: -
-// Effect:  
+/*
+  Function: setTimeout
+  
+  Sets the transmission timeout.
+  
+  Parameters:
+  _timeout - The new timeout in milliseconds.
+*/  
 
 void CKellerBus::setTimeout(uint16_t _timeout)
 {
   timeout = _timeout;
 }
 
-//################## getTimeout ###################
-// Takes:  -
-// Returns: timeout value
-// Effect:  
+/*
+  Function: getTimeout
+  
+  Returns the transmission timeout.
+  
+  Returns:
+  Transmission timeout in milliseconds.
+*/ 
 
 uint16_t CKellerBus::getTimeout(void)
 {
   return timeout;
 }
 
-//################## getDeviceAddress ###################
-// Takes:  -
-// Returns: device address
-// Effect:  
+/*
+  Function: getDeviceAddress
+  
+  Returns the device address
+  
+  Returns:
+  Device address.
+*/ 
 
 uint8_t CKellerBus::getDeviceAddress(void)
 {

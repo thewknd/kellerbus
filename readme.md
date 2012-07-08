@@ -24,41 +24,23 @@
 
 ## how to install
 1. download and copy the kellerbus folder to your Arduino library directory.
-on mac: /Users/*username*/Documents/Arduino
+<br/>on mac: /Users/*username*/Documents/Arduino
 
 2. restart the Arduino IDE
 
 3. Select an example from the Examples/kellerbus menu
 
-4. connect your compatible* Keller transducer
+4. connect your compatible* Keller transmitter
 
 5. upload your code to the Arduino and start the serial monitor
 
 
-(*)compatible are transducers with digital RS485 output
+(*)compatible are transmitter with digital RS485 output
 eg Series 33X/35X/36X/39X/41X/46X/DCX
 
 ### wire 
 
-Arduino Leonardo - RS485 Transceiver - Keller Transducer<br />
-<br />
-![wiring](http://tinytiger.ch/blog/wp-content/uploads/2012/06/max487.png)
-<br />
-devices with external power supply<br />
-<br />
-PIN NR - COLOR - SIGNAL<br />
-<br />
-1 - WHITE - GND<br />
-2 - BLACK - +SUPPLY<br />
-4 - BLUE - RS485A<br />
-5 - YELLOW - RS485B<br />
-<br />
-devices with internal power supply<br />
-<br />
-PIN NR - COLOR - SIGNAL<br />
-<br />
-4 - BLUE - RS485A<br />
-5 - YELLOW - RS485B<br />
+![wiring](http://dl.dropbox.com/u/2486346/rs485-5.jpg)
 
 ## license
 

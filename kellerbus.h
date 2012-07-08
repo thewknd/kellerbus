@@ -55,7 +55,7 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 #define CH_TOB1                     4
 #define CH_TOB2                     5
 
-// Functin 30, read coefficient, read scaling values
+// Functin F30, read coefficient, read scaling values
 
 #define OFFSET_P1                   64
 #define GAIN_P1                     65
@@ -109,17 +109,18 @@ class CKellerBus
   
     uint8_t device;
   
-    void Open(void);
-    void Close(void);
+    void open(void);
+    void close(void);
   
     void TransferData(uint8_t, uint8_t);
   
   public:  
+  
     CKellerBus(HardwareSerial*, uint16_t, uint8_t, uint16_t);
   
     int8_t getError();
-  
-    void initDevice(uint8_t _device); 
+
+    void initDevice(uint8_t); 
     void initDevice(uint8_t, uint8_t*, uint8_t*, uint8_t*, uint8_t*, uint8_t*, uint8_t*); 
   
     uint8_t getDeviceAddress(void);
@@ -134,7 +135,7 @@ class CKellerBus
     void readConfiguration(uint8_t*, uint8_t*, uint8_t*);
     
     int8_t readBatCapacity(void);
-    
+  
     time_t readDeviceTime(void);
     void writeDeviceTime(uint8_t, uint8_t, uint16_t, uint8_t, uint8_t, uint8_t);
     
