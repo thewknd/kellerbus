@@ -23,19 +23,14 @@
 - read record (DCX)
 
 ## how to install
-1. download and copy the kellerbus folder to your Arduino library directory.
-<br/>on mac: /Users/*username*/Documents/Arduino
-
+1. download and copy the kellerbus folder to your Arduino library directory.<br/>on mac: /Users/_username_/Documents/Arduino
 2. restart the Arduino IDE
-
 3. Select an example from the Examples/kellerbus menu
-
 4. connect your compatible* Keller transmitter
-
 5. upload your code to the Arduino and start the serial monitor
 
 
-(*)compatible are transmitter with digital RS485 output
+(*)compatible are transmitters with digital RS485 output
 eg Series 33X/35X/36X/39X/41X/46X/DCX
 
 ### wire 

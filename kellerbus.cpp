@@ -1,18 +1,15 @@
-/*! \mainpage My Personal Index Page
- *
- * \section intro_sec Introduction
- *
- * This is the introduction.
- *
- * \section install_sec Installation
- *
- * \subsection step1 Step 1: Opening the box
- *  
- * etc...
- */
- 
-#include <kellerbus.h>
+/**
 
+@author thewknd
+@version 0.0.2
+@date 7.2012
+
+@copyright
+This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported License. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/3.0/ or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
+*/
+
+
+#include <kellerbus.h>
 
 /**
   @brief sets up the interface to the transmitter.

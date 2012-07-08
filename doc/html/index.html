@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<title>kellerbus: My Personal Index Page</title>
+<title>kellerbus: Main Page</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -17,7 +17,6 @@
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
    <div id="projectname">kellerbus
-   &#160;<span id="projectnumber">0.0.1</span>
    </div>
   </td>
  </tr>
@@ -37,21 +36,55 @@
 </div><!-- top -->
 <div class="header">
   <div class="headertitle">
-<div class="title">My Personal Index Page </div>  </div>
+<div class="title">kellerbus Documentation</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><h1><a class="anchor" id="intro_sec"></a>
-Introduction</h1>
-<p>This is the introduction.</p>
-<h1><a class="anchor" id="install_sec"></a>
-Installation</h1>
-<h2><a class="anchor" id="step1"></a>
-Step 1: Opening the box</h2>
-<p>etc... </p>
+<div class="textblock"><h3>kellerbus, a library for arduino</h3>
+<h2>requirements</h2>
+<ul>
+<li>Arduino IDE 1.0.1</li>
+<li>a free hardware serial interface (works best with Arduino Leonardo, Mega, Mega2560)</li>
+<li>RS485 compatible transceiver, like MAX487</li>
+</ul>
+<h2>features</h2>
+<ul>
+<li>read serialnumber</li>
+<li>read pressure P1/P2</li>
+<li>read temperature T/TOB1/TOB2</li>
+<li>read CH0</li>
+<li>read configuration (gain/offset)</li>
+<li>read device type/software version</li>
+<li>read calibration data (min/max pressure min/max temperature)</li>
+<li>read/write device address</li>
+<li>read/write device time</li>
+<li>read battery capacity</li>
+</ul>
+<h2>planned features</h2>
+<ul>
+<li>soft serial support</li>
+<li>read/write record configuration (DCX)</li>
+<li>read record (DCX)</li>
+</ul>
+<h2>how to install</h2>
+<ol type="1">
+<li>download and copy the kellerbus folder to your Arduino library directory.<br/>
+on mac: /Users/_username_/Documents/Arduino</li>
+<li>restart the Arduino IDE</li>
+<li>Select an example from the Examples/kellerbus menu</li>
+<li>connect your compatible* Keller transmitter</li>
+<li>upload your code to the Arduino and start the serial monitor</li>
+</ol>
+<p>(*)compatible are transmitters with digital RS485 output eg Series 33X/35X/36X/39X/41X/46X/DCX</p>
+<h3>wire</h3>
+<div class="image">
+<img src="http://dl.dropbox.com/u/2486346/rs485-5.jpg"  alt="wiring"/>
+</div>
+<h2>license</h2>
+<p>This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported License. To view a copy of this license, visit <a href="http://creativecommons.org/licenses/by-sa/3.0/">http://creativecommons.org/licenses/by-sa/3.0/</a> or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA. </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun Jul 8 2012 22:16:13 for kellerbus by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 8 2012 22:38:45 for kellerbus by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>
