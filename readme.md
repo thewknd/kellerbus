@@ -1,12 +1,12 @@
 ### kellerbus, a library for arduino
 
-![keller transmitter 33X/35X](http://www.elektrotechnik.vogel.de/imgserver/bdb/212800/212831/4.jpg)
-
 ## requirements
 - Arduino IDE 1.0.1
 - a free hardware serial interface (works best with Arduino Leonardo, Mega, Mega2560)
 - RS485 compatible transceiver, like MAX487
 - compatible* Keller transmitter
+
+![keller transmitter 33X/35X](http://www.elektrotechnik.vogel.de/imgserver/bdb/212800/212831/4.jpg)
 
 ## features
 - read serialnumber

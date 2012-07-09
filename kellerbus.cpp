@@ -654,7 +654,7 @@ void CKellerBus::close(void)
   - P_KPA    conversion to kPascal
   - P_MPA    conversion to MPascal
   - P_MH2O   conversion to mH2O
-  - P_MWS    conversion to mWs Meter Wassersäule
+  - P_MWS    conversion to mWs Meter Wassersaeule
   - P_MWG    conversion to mWg meters, water gauge
   - P_INHG   conversion to inHg
   - P_MMHG   conversion to mmHg
