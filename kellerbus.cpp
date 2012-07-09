@@ -1,7 +1,6 @@
-/**
+/*
 
 @author thewknd
-@version 0.0.2
 @date 7.2012
 
 @copyright
@@ -108,6 +107,21 @@ uint32_t CKellerBus::getSerialnumber(void)
   }
 }
 
+/**
+  @brief Returns the channel value. Wrapper function F73. 
+  @param  Channel Index of the channel.
+
+  _available values for "Channel"_
+
+  - CH_0                        
+  - CH_P1                       
+  - CH_P2                       
+  - CH_T                        
+  - CH_TOB1                     
+  - CH_TOB2                     
+                 
+  @return Channel value.
+*/
 
 float CKellerBus::readChannel(uint8_t Channel)
 {

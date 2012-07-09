@@ -1,3 +1,6 @@
 .DS_Store
 Natural Docs/
 init.doxygen.cpp
+doc/man/
+doc/rtf/
+doc/xml/

@@ -1,9 +1,12 @@
 ### kellerbus, a library for arduino
 
+![keller transmitter 33X/35X](http://www.elektrotechnik.vogel.de/imgserver/bdb/212800/212831/4.jpg)
+
 ## requirements
 - Arduino IDE 1.0.1
 - a free hardware serial interface (works best with Arduino Leonardo, Mega, Mega2560)
 - RS485 compatible transceiver, like MAX487
+- compatible* Keller transmitter
 
 ## features
 - read serialnumber
@@ -28,7 +31,6 @@
 3. Select an example from the Examples/kellerbus menu
 4. connect your compatible* Keller transmitter
 5. upload your code to the Arduino and start the serial monitor
-
 
 (*)compatible are transmitters with digital RS485 output
 eg Series 33X/35X/36X/39X/41X/46X/DCX

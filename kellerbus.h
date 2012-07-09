@@ -1,6 +1,11 @@
-/*
+/**
+
+@author thewknd
+@date 7.2012
+
+@copyright
 This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported License. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/3.0/ or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
- */
+*/
 
 #ifndef _H_KELLERBUS
 #define _H_KELLERBUS
@@ -25,6 +30,8 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 #define COMM_TX_MAX                 20
 #define COMM_RX_MAX                 260
 
+// pressure conversation
+
 #define P_BAR                       0     // Bar
 #define P_MBAR                      1     // mBar
 #define P_PSI                       2     // Psi
@@ -33,7 +40,7 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 #define P_KPA                       4     // kPascal
 #define P_MPA                       5     // MPascal
 #define P_MH2O                      6     // mH2O
-#define P_MWS                       6     // mWs Meter Wassersäule
+#define P_MWS                       6     // mWs Meter Wassersaeule
 #define P_MWG                       6     // mWg meters, water gauge
 #define P_INHG                      7     // inHg
 #define P_MMHG                      8     // mmHg
@@ -41,12 +48,16 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 #define P_TORR                      8     // Torr
 #define P_FTH2O                     10    // ftH2O
 
+// temperature conversation
+
 #define T_DEGC                      0     // °C Celsius
 #define T_DEGK                      1     // °K Kelvin
 #define T_DEGF                      2     // °F Fahreinheit
 #define T_DEGR                      3     // °R Rankine
 
 #define MAX_CHANNELS                6
+
+// Function F73, read channel value
 
 #define CH_0                        0
 #define CH_P1                       1
@@ -82,12 +93,7 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 #define MIN_ANALOG                  94
 #define MAX_ANALOG                  95
 
-
-
-
-
-#define KB_DEBUG                    0
-
+#define KB_DEBUG                    0 // 1 = Debug mode active, 0 = Debug mode disabled
 
 #define delayus                     delayMicroseconds
 
@@ -96,18 +102,18 @@ class CKellerBus
   private:
     HardwareSerial *Comm;
   
-    CRC checksum;
+    CRC checksum; 
   
-    uint16_t baudrate;
-    uint8_t RTS_PIN;
-    uint16_t timeout;
+    uint16_t baudrate; // baudrate for the rs485 connection
+    uint8_t RTS_PIN; // RTS hardware pin on Arduino
+    uint16_t timeout; // Communication timeout for the rs485 connection
   
-    uint8_t TxBuffer[COMM_TX_MAX];
-    uint8_t RxBuffer[COMM_TX_MAX + COMM_RX_MAX];
+    uint8_t TxBuffer[COMM_TX_MAX]; // Transmit buffer
+    uint8_t RxBuffer[COMM_TX_MAX + COMM_RX_MAX]; // Recieve buffer
   
-    int8_t Error;
+    int8_t Error; // Error code of the last error
   
-    uint8_t device;
+    uint8_t device; // device address
   
     void open(void);
     void close(void);
