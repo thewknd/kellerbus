@@ -156,6 +156,7 @@ class CKellerBus
     
     void setTimeout(uint16_t);
     uint16_t getTimeout(void);
+    int16_t readActualPageAddress(void);
 };
 #endif
 

@@ -44,8 +44,8 @@ eg Series 33X/35X/36X/39X/41X/46X/DCX
 - Online documentation: http://thewknd.github.com/kellerbus/
 - Github.com repo: https://github.com/thewknd/kellerbus
 - Blog (german): http://tinytiger.ch/blog/
-- Bus protocol description 1 (with S30, DCX, dV2, Leo and LEX): http://www.keller-druck.ch/home_e/paprod_e/progrcode_e.asp
-- Bus protocol description 2 (only for S30, but the newer one): http://www.keller-druck.ch/picts/pdf/engl/comm_protocol_e.pdf
+- Bus protocol description (with S30, DCX, dV2, Leo and LEX): http://www.keller-druck.ch/home_e/paprod_e/progrcode_e.asp
+- Bus protocol description (only for S30, but the newer one): http://www.keller-druck.ch/picts/pdf/engl/comm_protocol_e.pdf
 
 ## license
 

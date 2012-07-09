@@ -296,6 +296,33 @@ time_t CKellerBus::readDeviceTime(void)
 } 
 
 /**
+  @brief Returns the actual record page address
+  @return The  address of actual record page
+*/
+
+int16_t CKellerBus::readActualPageAddress(void)
+{
+  uint32_t c1,c2,c3,c4;
+   
+  // Prepare TxBuffer
+  TxBuffer[0] = device;
+  TxBuffer[1] = 0b01111111 & 92;
+  TxBuffer[2] = 1;
+  
+  TransferData(3,9); 
+  
+  if(Error == RS_OK) {
+    Serial.println(RxBuffer[5],BIN);
+    Serial.println(RxBuffer[6],BIN);
+    
+    return -1;//RxBuffer[5]<<4 & RxBuffer[6];
+    
+  } else {
+    return -1;
+  }
+} 
+
+/**
   @brief Returns the battery capacity.
   @return Battery caoacity in percent.
 */
