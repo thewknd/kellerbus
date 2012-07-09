@@ -35,9 +35,17 @@
 (*)compatible are transmitters with digital RS485 output
 eg Series 33X/35X/36X/39X/41X/46X/DCX
 
-### wire 
+## wiring
 
 ![wiring](http://dl.dropbox.com/u/2486346/rs485-5.jpg)
+
+
+## online resources
+Online documentation: ![url to the documentation](http://thewknd.github.com/kellerbus/)
+Github.com repo: ![url to the repo](https://github.com/thewknd/kellerbus)
+Bus protocol description 1 (with S30, DCX, dV2, Leo and LEX): ![description url](http://www.keller-druck.ch/home_e/paprod_e/progrcode_e.asp)
+Bus protocol description 2 (S30, the newer one): ![description url](http://www.keller-druck.ch/picts/pdf/engl/comm_protocol_e.pdf)
+Blog (german): ![blog url](http://tinytiger.ch/blog/)
 
 ## license
 
