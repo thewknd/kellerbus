@@ -2,7 +2,6 @@
 
 ## requirements
 - Arduino IDE 1.0.1
-- a free hardware serial interface (works best with Arduino Leonardo, Mega, Mega2560)
 - RS485 compatible transceiver, like MAX487
 - compatible* Keller transmitter
 
@@ -19,9 +18,9 @@
 - read/write device address
 - read/write device time
 - read battery capacity
+- supports softwareSerial or hardwareSerial 
 
 ## planned features
-- soft serial support
 - read/write record configuration (DCX)
 - read record (DCX)
 

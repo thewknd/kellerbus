@@ -11,21 +11,49 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 #include <kellerbus.h>
 
 /**
-  @brief sets up the interface to the transmitter.
+  @brief sets up the hardwareserial interface to the transmitter.
   @constructor
-  @param _comm Hardwareserial port.
+  @param serialPort Hardwareserial port.
   @param _baudrate Baudrate for the hardwareserial port, usually 9600.
   @param _rts Ready To Send Pin.
   @param _timeout Communication timeout, in milliseconds, usually 100 (250 for DCX).
 */
 
-CKellerBus::CKellerBus(HardwareSerial* _comm, uint16_t _baudrate, uint8_t _rts, uint16_t _timeout)
+CKellerBus::CKellerBus(HardwareSerial* serialPort, uint16_t _baudrate, uint8_t _rts, uint16_t _timeout)
 {
   baudrate = _baudrate;
   timeout = _timeout;
-  Comm = _comm;
-  RTS_PIN = _rts;
+  hwSerial = serialPort;
+  RTS_PIN = _rts; 
+  useHWSerial = true;
+  
+  pinMode(RTS_PIN,OUTPUT);
+  digitalWrite(RTS_PIN,LOW);
+}
 
+/**
+  @brief sets up the softserial interface to the transmitter.
+  @constructor
+  @param serialPort SoftwareSerial instance.
+  @param _baudrate Baudrate for the SoftwareSerial port, usually 9600.
+  @param _rts Ready To Send Pin.
+  @param _timeout Communication timeout, in milliseconds, usually 100 (250 for DCX).
+
+  *note*
+  - Not all pins on the Mega and Mega 2560 support change interrupts, so only the following can be used for RX: 10, 11, 12, 13, 50, 51, 52, 53, 62, 63, 64, 65, 66, 67, 68, 69
+  - Not all pins on the Leonardo support change interrupts, so only the following can be used for RX: 8, 9, 10, 11, 14 (MISO), 15 (SCK), 16 (MOSI).
+*/
+
+CKellerBus::CKellerBus(SoftwareSerial* serialPort, uint16_t _baudrate, uint8_t _rts, uint16_t _timeout)
+{
+  baudrate = _baudrate;
+  timeout = _timeout;
+  RTS_PIN = _rts;
+  
+  useHWSerial = false;
+
+  swSerial = serialPort;
+  
   pinMode(RTS_PIN,OUTPUT);
   digitalWrite(RTS_PIN,LOW);
 }
@@ -300,7 +328,7 @@ time_t CKellerBus::readDeviceTime(void)
   @return The  address of actual record page
 */
 
-int16_t CKellerBus::readActualPageAddress(void)
+/*int16_t CKellerBus::readActualPageAddress(void)
 {
   uint32_t c1,c2,c3,c4;
    
@@ -320,7 +348,7 @@ int16_t CKellerBus::readActualPageAddress(void)
   } else {
     return -1;
   }
-} 
+} */
 
 /**
   @brief Returns the battery capacity.
@@ -392,15 +420,14 @@ void CKellerBus::writeDeviceTime(uint8_t _day, uint8_t _month, uint16_t _year, u
 
 void CKellerBus::TransferData(byte nTX, byte nRX) 
 {
-  uint16_t Crc, p, now, startTimeout, b=0;
-  uint8_t crcBuff[COMM_TX_MAX + COMM_RX_MAX];
+  uint16_t Crc, p, now, startTimeout; 
+  uint16_t b = 0; // counts the incoming bytes
 
   Error = RS_OK;
-
-  // Clear RxBuffer;
+  if (KB_DEBUG) Serial.println("kellerbus start transfer data"); 
+  // Clear RxBuffer
   for(b = 0; b < COMM_TX_MAX + COMM_RX_MAX; b++) {
     RxBuffer[b] = 0;
-    crcBuff[b] = 0;
   }
   b = 0;
 
@@ -417,20 +444,29 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
     }
   }
 
-  // Open HWSerial
+  // Open the RS485 connection
   open();
 
   digitalWrite(RTS_PIN,HIGH);
   delay (1);
 
-  if(Comm->write(TxBuffer,(int)(nTX + 2)) != (nTX + 2)) {
-    Error = RS_TXERROR;
+  if(useHWSerial) {
+    if(hwSerial->write(TxBuffer,(int)(nTX + 2)) != (nTX + 2)) {
+      Error = RS_TXERROR;
+    }
+
+    while (!(UCSR1A & (1 << UDRE1))) {
+      UCSR1A |= 1 << TXC1;
+    }
+    while (!(UCSR1A & (1 << TXC1)));
   }
 
-  while (!(UCSR1A & (1 << UDRE1))) {
-    UCSR1A |= 1 << TXC1;
+
+  if(!useHWSerial) {
+    if(swSerial->write(TxBuffer,(int)(nTX + 2)) != (nTX + 2)) {
+      Error = RS_TXERROR;
+    }
   }
-  while (!(UCSR1A & (1 << TXC1)));
   
   digitalWrite(RTS_PIN,LOW);   
 
@@ -439,79 +475,115 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
   b = 0;  
   startTimeout = millis();
   do {
-    if (Comm->available() > 0) {
-      // incoming byte
-      RxBuffer[b] = Comm->read();
-      if (KB_DEBUG) Serial.print(RxBuffer[b],DEC); 
+    
+    // hardwareSerial as serialPort
+    if(useHWSerial) {
+      if (hwSerial->available() > 0) {
+        // incoming byte
+        RxBuffer[b] = hwSerial->read();
+        if (KB_DEBUG) Serial.print(RxBuffer[b],DEC); 
 
-      if (b == 0){
+        if (b == 0){
 
-        // first step, check device address
-        if(device == 250) {
-          if ((RxBuffer[b] >= 1) && (RxBuffer[b] <= 250)) {
-            // device address is valid
-            b++;
-          }
-        } else {
-          if(RxBuffer[b] == device )  {
-            // same device address -> ok
+          // first step, check device address
+          if(device == 250) {
+            if ((RxBuffer[b] >= 1) && (RxBuffer[b] <= 250)) {
+              // device address is valid
+              b++;
+            }
+          } else if(RxBuffer[b] == device )  {
+            // rx buffer and tx buffer have the same device address -> ok
             b++;    
           } else {
             // wrong device address
-            if (KB_DEBUG) Serial.print("***");
+            if (KB_DEBUG) Serial.print(" -ERROR: DEVICE ADDRESS-");
           }
-        }
-      } 
-      else if(b == 1) {
-        // second step, check for function code
-        // handle exception errors (communication protocol: 3.3.2.2 / Exception errors )
+        } else if(b == 1) {
+          // second step, check for function code
+          // handles exception errors (communication protocol: 3.3.2.2 / Exception errors )
 
-        if(RxBuffer[b] != (0x80 | TxBuffer[b])) { 
+          if(RxBuffer[b] != (0x80 | TxBuffer[b])) { 
 
-          if( RxBuffer[b] == TxBuffer[b]) {
-            // the transmitted and the recieved function code are the same 
-            b++;
-          } else {
-            // function code was wrong, check for device id and do again the second step
-            if(device == 250) {
-              if ((RxBuffer[b] >= 1) || (RxBuffer[b] <= 250)) {
-                if (KB_DEBUG) Serial.print("+++");
-                RxBuffer[b-1] = RxBuffer[b]; 
-              } else {
-                b = 0;
-                if (KB_DEBUG) Serial.print("***");
-              }
+            if( RxBuffer[b] == TxBuffer[b]) {
+              // the transmitted and the received function code are the same 
+              b++;
             } else {
-              if(RxBuffer[b] == device )  {
-                if (KB_DEBUG) Serial.print("+++");
-                RxBuffer[b-1] = RxBuffer[b];
-              } else {
-                b = 0;
-                if (KB_DEBUG) Serial.print("***");
-              }
+              // function code was wrong, go back to the first step
+              b = 0;
+              if (KB_DEBUG) Serial.print(" -ERROR: FUNCTION CODE-");
             }
+          } else {
+            // exception error flag is set
+            b++;
+            nRX = 3;
+            if (KB_DEBUG) Serial.print(" -EXCEPTION- ");
           }
         } else {
-          // exception error flag is set
+         // step > 2
           b++;
-          nRX = 3;
-          if (KB_DEBUG) Serial.print(" EX ");
         }
-      } else {
-       // step > 2
-        b++;
+
+        if (KB_DEBUG) Serial.print("'");      
+
+        startTimeout = millis();  
       }
+    }
 
-      if (KB_DEBUG) Serial.print("'");      
+    // softwareSerial as serialPort
+    if(!useHWSerial) {
+      if (swSerial->available() > 0) {
+        // incoming byte
+        RxBuffer[b] = swSerial->read();
+        if (KB_DEBUG) Serial.print(RxBuffer[b],DEC); 
 
-      startTimeout = millis();    
+        if (b == 0){
 
+          // first step, check device address
+          if(device == 250) {
+            if ((RxBuffer[b] >= 1) && (RxBuffer[b] <= 250)) {
+              // device address is valid
+              b++;
+            }
+          } else if(RxBuffer[b] == device )  {
+            // rx buffer and tx buffer have the same device address -> ok
+            b++;    
+          } else {
+            // wrong device address
+            if (KB_DEBUG) Serial.print(" -ERROR: DEVICE ADDRESS-");
+          }
+        } else if(b == 1) {
+          // second step, check for function code
+          // handles exception errors (communication protocol: 3.3.2.2 / Exception errors )
+
+          if(RxBuffer[b] != (0x80 | TxBuffer[b])) { 
+
+            if( RxBuffer[b] == TxBuffer[b]) {
+              // the transmitted and the received function code are the same 
+              b++;
+            } else {
+              // function code was wrong, go back to the first step
+              b = 0;
+              if (KB_DEBUG) Serial.print(" -ERROR: FUNCTION CODE-");
+            }
+          } else {
+            // exception error flag is set
+            b++;
+            nRX = 3;
+            if (KB_DEBUG) Serial.print(" -EXCEPTION- ");
+          }
+        } else {
+         // step > 2
+          b++;
+        }
+        if (KB_DEBUG) Serial.print("'");      
+
+        startTimeout = millis();  
+      }
     }      
     now = millis();    
-  } 
-  while((b < nRX) && (now - startTimeout <= timeout) && (Error == RS_OK)); // timeout 
+  } while((b < nRX) && (now - startTimeout <= timeout) && (Error == RS_OK)); // timeout 
 
-  if (now - startTimeout > timeout) {
+  if (now - startTimeout > timeout) { // checks fo timeout error
     Error = RS_TIMEOUT;
     if (KB_DEBUG) {
       Serial.print("\r\nb:");
@@ -526,30 +598,25 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
   }
 
   if(Error == RS_OK) {
-    // Checksumme überprüfen
-    if (KB_DEBUG) Serial.print("\r\nCRC:");  
+    // check the checksum
+    Crc = checksum.CRC16(RxBuffer,b-2);
 
-    for(p = 0; p < b-2;p++) {
-      if (KB_DEBUG) {
-        Serial.print(RxBuffer[p]); 
-        Serial.print("'");
-      }
-      crcBuff[p] = RxBuffer[p];
-    }
-    Crc = checksum.CRC16(crcBuff,b-2);
     if (KB_DEBUG) {
-      Serial.print(" -- HB:"); 
+      Serial.print("\r\nCRC: HB:"); 
       Serial.print(highByte(Crc));
       Serial.print(" LB:");
       Serial.print(lowByte(Crc));
       Serial.println("");
     }
+
     if((highByte(Crc) != RxBuffer[b-2]) || (lowByte(Crc) != RxBuffer[b-1])) {
+      // the calculated checksum differs from the received checksum
       Error = RS_BADCRC;
       if (KB_DEBUG)Serial.println("*** BAD CRC");
     } 
   }
 
+  // if the exception flag was set
   if((RxBuffer[1] & 0x80)) {
     switch (RxBuffer[2]) {
     case 1 : 
@@ -570,7 +637,7 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
     }
   }  
 
-  // Close HWSerial
+  // Close the serialPort
   close();
   if (KB_DEBUG) Serial.print("Fehler:");
   if (KB_DEBUG) Serial.println(Error);
@@ -654,7 +721,11 @@ float CKellerBus::getT(uint8_t unit)
 
 void CKellerBus::open(void)
 {
-  Comm->begin(baudrate);  
+  if(useHWSerial) {
+    hwSerial->begin(baudrate);
+  } else {
+    swSerial->begin(baudrate);
+  }  
 }
 
 /**
@@ -663,7 +734,9 @@ void CKellerBus::open(void)
 
 void CKellerBus::close(void)
 {
-  Comm->end();
+  if(useHWSerial) {
+    hwSerial->end();
+  } 
 }
 
 /**

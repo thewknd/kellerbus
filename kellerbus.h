@@ -13,6 +13,7 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 #include <Arduino.h>
 #include <CRC16.h>
 #include <Time.h>
+#include <SoftwareSerial.h>
 
 // Error codes
 #define RS_OK                       0
@@ -100,7 +101,8 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 class CKellerBus
 {
   private:
-    HardwareSerial *Comm;
+    HardwareSerial *hwSerial;
+    SoftwareSerial *swSerial;
   
     CRC checksum; 
   
@@ -114,7 +116,9 @@ class CKellerBus
     int8_t Error; // Error code of the last error
   
     uint8_t device; // device address
-  
+    
+    bool useHWSerial; // true: HardwareSerial, false: NewSoftSerial 
+    
     void open(void);
     void close(void);
   
@@ -124,7 +128,8 @@ class CKellerBus
   
   public:  
   
-    CKellerBus(HardwareSerial*, uint16_t, uint8_t, uint16_t);
+    CKellerBus(HardwareSerial*, uint16_t, uint8_t, uint16_t); // constructor for HWSerial
+    CKellerBus(SoftwareSerial*, uint16_t, uint8_t, uint16_t); // constructor for SoftSerial
   
     int8_t getError();
 
@@ -156,7 +161,7 @@ class CKellerBus
     
     void setTimeout(uint16_t);
     uint16_t getTimeout(void);
-    int16_t readActualPageAddress(void);
+    //int16_t readActualPageAddress(void);
 };
 #endif
 
