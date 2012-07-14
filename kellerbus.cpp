@@ -276,7 +276,7 @@ void CKellerBus::writeDeviceAddress(uint8_t newAddress)
 
 void CKellerBus::readConfiguration(uint8_t* CFG_P, uint8_t* CFG_T, uint8_t* CNT_T)
 {
-  // Prepare TxBuffer
+  
   TxBuffer[0] = device;
   TxBuffer[1] = 0b01111111 & 100;
   TxBuffer[2] = 2;
@@ -291,9 +291,68 @@ void CKellerBus::readConfiguration(uint8_t* CFG_P, uint8_t* CFG_T, uint8_t* CNT_
 } 
 
 /**
+  @brief Reads out the speciefied part from the record page
+*/
+
+int8_t CKellerBus::getRecordPageContent(uint16_t pageAddress, uint16_t offset, uint8_t* datatype,  uint8_t* channel, float* measurement, uint16_t* timegap, char* desc)
+{
+  uint8_t buf0, buf1, buf2, buf3, bteArr[4]; 
+
+  F67(pageAddress, offset, 4, &buf0, &buf1, &buf2, &buf3);
+
+  if(Error == RS_OK) {
+    if((buf0 & 0xF0) != 0xF0) {
+      *channel = (buf0 & 0xF0) >> 4;
+      *timegap = buf0 & 0x0F;
+
+      bteArr[0] = 0;
+      bteArr[1] = buf3;
+      bteArr[2] = buf2;
+      bteArr[3] = buf1;
+      *measurement = *(float*)(&bteArr[0]);  
+      /*Serial.println("\n\rDBG VALUE");
+      Serial.println(bteArr[0],BIN);
+      Serial.println(bteArr[1],BIN);
+      Serial.println(bteArr[2],BIN);
+      Serial.println(bteArr[3],BIN);
+      Serial.println(*(float*)(&bteArr[0]));*/
+
+      *datatype = 0;
+
+    } else if(buf0 == 0xF0) {
+      *timegap = (256 * buf2) + buf3;
+
+      /*Serial.println("\n\rDBG TimEGAP");
+      Serial.println(buf1,BIN);
+      Serial.println(buf2,BIN);
+      Serial.println(buf3,BIN);*/
+
+      *datatype = 1;
+
+    } else if(buf0 == 0xF4) {
+      desc[0] = buf1;
+      desc[1] = buf2;
+      desc[2] = buf3;
+      *datatype = 2;
+
+    } else if(buf0 == 0xFF) {
+      *datatype = 3;
+    } else {
+      *datatype = 4;
+    }
+
+    return 1;
+  } else {
+    return -1;
+  }
+
+}
+
+
+/**
   @brief Reads the speciefied bytes from the record rom
   @param pageAddress Page address
-  @param position Start psition 0 .. 63
+  @param position Start position 0 .. 63
   @param cntBytes Amount of bytes to read 1 .. 4
   @param data0 First byte
   @param data1 Second byte
@@ -333,7 +392,7 @@ int16_t CKellerBus::readStartDetection(uint16_t pageAddress)
   F67(pageAddress,0,1,&buf0,0,0,0);
 
   if(Error == RS_OK) {
-    return (buf0 & 0b10000000); 
+    return (buf0 & 0b10000000) >> 7; 
   } else {
     return -1;
   }
@@ -351,7 +410,7 @@ int16_t CKellerBus::readOverflowCounter(uint16_t pageAddress)
   F67(pageAddress,0,1,&buf0,0,0,0);
 
   if(Error == RS_OK) {
-    return (buf0 & 0b01100000); 
+    return (buf0 & 0b01100000) >> 5; 
   } else {
     return -1;
   }
@@ -679,7 +738,6 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
   uint16_t b = 0; // counts the incoming bytes
 
   Error = RS_OK;
-  if (KB_DEBUG) Serial.println("kellerbus start transfer data"); 
   // Clear RxBuffer
   for(b = 0; b < COMM_TX_MAX + COMM_RX_MAX; b++) {
     RxBuffer[b] = 0;

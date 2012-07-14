@@ -180,6 +180,10 @@ class CKellerBus
     int16_t readRecordPageStartPointer(uint16_t);
     int16_t readStartDetection(uint16_t);
     int16_t readOverflowCounter(uint16_t);
+
+
+    int8_t getRecordPageContent(uint16_t, uint16_t, uint8_t*,  uint8_t*, float*, uint16_t*, char*);
+
     /***
     
         Low level functions
@@ -188,7 +192,7 @@ class CKellerBus
 
     void F67(uint16_t, uint8_t, uint8_t, uint8_t*, uint8_t*, uint8_t*, uint8_t*); // Read out record ROM
     void F92(uint8_t, uint8_t*, uint8_t*, uint8_t*, uint8_t*, uint8_t*); // Read out record configuration
-    void F93(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t); // write record configuration
+    void F93(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t); // Write record configuration
     
 };
 

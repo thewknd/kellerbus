@@ -183,38 +183,59 @@
 <div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;</div>
 <div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    uint32_t <a class="code" href="class_c_keller_bus.html#afb016fe26ef5851cba411be2d46ee5de" title="Returns the serialnumber.">getSerialnumber</a>(<span class="keywordtype">void</span>);</div>
 <div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;</div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;    <span class="keywordtype">float</span> <a class="code" href="class_c_keller_bus.html#acb34968f69a601c5351c64c52bf7ffd3" title="Returns the channel value. Wrapper function F73.">readChannel</a>(uint8_t);</div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;</div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;    <span class="keywordtype">float</span> <a class="code" href="class_c_keller_bus.html#adcf9818895a6a3a1803d1af815c051cd" title="Returns the value of channel CH0.">getCH0</a>();</div>
-<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;    <span class="keywordtype">float</span> <a class="code" href="class_c_keller_bus.html#acb34968f69a601c5351c64c52bf7ffd3" title="Returns the channel value. Wrapper function F73.">readChannel</a>(uint8_t);</div>
+<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;</div>
+<div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;    <span class="keywordtype">float</span> <a class="code" href="class_c_keller_bus.html#adcf9818895a6a3a1803d1af815c051cd" title="Returns the value of channel CH0.">getCH0</a>();</div>
 <div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;    <span class="keywordtype">float</span> <a class="code" href="class_c_keller_bus.html#a78cbd060cbedea36ba83e691e9ee8524" title="Returns the value of channel P1.">getP1</a>(uint8_t);</div>
 <div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    <span class="keywordtype">float</span> <a class="code" href="class_c_keller_bus.html#abac69efbf40c865fd5f290f431eb31c9" title="Returns the value of channel P2.">getP2</a>(uint8_t);</div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    <span class="keywordtype">float</span> <a class="code" href="class_c_keller_bus.html#a8e7cd738860bbc3438bb576c86aa8588" title="Converts the pressure value.">pressureConversion</a>(<span class="keywordtype">float</span>, uint8_t);</div>
-<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;</div>
-<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;    <span class="keywordtype">float</span> <a class="code" href="class_c_keller_bus.html#a9edf433fb05e76c8a7fff40232e42e06" title="Returns the value of channel TOB1.">getTOB1</a>(uint8_t);</div>
-<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;    <span class="keywordtype">float</span> <a class="code" href="class_c_keller_bus.html#afe79dc47596425f6e67916935337485b" title="Returns the value of channel TOB2.">getTOB2</a>(uint8_t);</div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;    <span class="keywordtype">float</span> <a class="code" href="class_c_keller_bus.html#a047124403287057a158525a9a56c00d5" title="Returns the value of channel T.">getT</a>(uint8_t);</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    <span class="keywordtype">float</span> <a class="code" href="class_c_keller_bus.html#a9edf433fb05e76c8a7fff40232e42e06" title="Returns the value of channel TOB1.">getTOB1</a>(uint8_t);</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;    <span class="keywordtype">float</span> <a class="code" href="class_c_keller_bus.html#afe79dc47596425f6e67916935337485b" title="Returns the value of channel TOB2.">getTOB2</a>(uint8_t);</div>
+<div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;    <span class="keywordtype">float</span> <a class="code" href="class_c_keller_bus.html#a047124403287057a158525a9a56c00d5" title="Returns the value of channel T.">getT</a>(uint8_t);</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;    <span class="keywordtype">float</span> <a class="code" href="class_c_keller_bus.html#a8e7cd738860bbc3438bb576c86aa8588" title="Converts the pressure value.">pressureConversion</a>(<span class="keywordtype">float</span>, uint8_t);</div>
 <div class="line"><a name="l00159"></a><span class="lineno">  159</span>&#160;    <span class="keywordtype">float</span> <a class="code" href="class_c_keller_bus.html#a58ef84ebd38342486cd771f9139d9c44" title="Converts the temperature value.">temperatureConversion</a>(<span class="keywordtype">float</span>, uint8_t);</div>
 <div class="line"><a name="l00160"></a><span class="lineno">  160</span>&#160;   </div>
 <div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;    </div>
 <div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_keller_bus.html#a31ce0818256c73bcdcef998abe6b8e8d" title="Read configuration, Wrapper function F100.">readConfiguration</a>(uint8_t*, uint8_t*, uint8_t*);</div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;    <span class="keywordtype">float</span> <a class="code" href="class_c_keller_bus.html#a2de427b82dfa4de11c6ae0f39ed3a131" title="Returns the scaling value. Wrapper function F30.">readScalingValue</a>(uint8_t);</div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;    </div>
-<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;    int8_t <a class="code" href="class_c_keller_bus.html#ac336fd7fadd91ba923f708f977160099" title="Returns the battery capacity.">readBatCapacity</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;  </div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    time_t <a class="code" href="class_c_keller_bus.html#a0d42ec23f5e1fb652f3c4c6cecb5a130" title="Returns the device time.">readDeviceTime</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_keller_bus.html#a59072e902538c239c353970b71d93d73" title="Sets the device time.">writeDeviceTime</a>(uint8_t, uint8_t, uint16_t, uint8_t, uint8_t, uint8_t);</div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;</div>
+<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;    <span class="keywordtype">float</span> <a class="code" href="class_c_keller_bus.html#a2de427b82dfa4de11c6ae0f39ed3a131" title="Returns the scaling value. Wrapper function F30.">readScalingValue</a>(uint8_t);</div>
+<div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;</div>
+<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;    uint32_t <a class="code" href="class_c_keller_bus.html#a7c7682a1e2e8acf09cb77c1ee7bbff2a" title="Returns the device time.">readDeviceTime</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_keller_bus.html#a59072e902538c239c353970b71d93d73" title="Sets the device time.">writeDeviceTime</a>(uint8_t, uint8_t, uint16_t, uint8_t, uint8_t, uint8_t);</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    int16_t <a class="code" href="class_c_keller_bus.html#a4eec8c1e410f72668520afa336ddbf65" title="Returns the first record page address.">readRecRomFirstPagePhysik</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    int16_t <a class="code" href="class_c_keller_bus.html#a672be08fdabee91807e75e6950ba0f11" title="Returns the last record page address.">readRecRomLastPagePhysik</a>(<span class="keywordtype">void</span>);</div>
 <div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    int16_t <a class="code" href="class_c_keller_bus.html#ac289b00100106a717afe2aecd504b27e" title="Returns the actual record page address.">readActualPageAddress</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    time_t <a class="code" href="class_c_keller_bus.html#ae218983817f626fa8a5bb3d3fc62db75" title="Returns the record start time.">readRecordStartTime</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;    int8_t <a class="code" href="class_c_keller_bus.html#ae9d83d77f307bb9ae563ac8daae995a4" title="Returns the actual record page address.">readRecordROM</a>(uint16_t, uint8_t, uint8_t, uint8_t*, uint8_t*, uint8_t*, uint8_t*);</div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;};</div>
-<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    uint32_t <a class="code" href="class_c_keller_bus.html#a18dbfbc8cdb350d90628d6dbc95c28df" title="Returns the record start time.">readRecordStartTime</a>(<span class="keywordtype">void</span>); </div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;    int16_t <a class="code" href="class_c_keller_bus.html#a26d5ba656dad697a91ac86fb52d72060" title="Returns FUNC.">readFUNC</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    int16_t <a class="code" href="class_c_keller_bus.html#a92fa56c7e91bba141d8da11be2288da6" title="Returns REC_CTRL.">readRECCTRL</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;    int16_t <a class="code" href="class_c_keller_bus.html#abf2f51102a837931ba332b36274c57ea" title="Returns the record CFG.">readRECCFG</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;    int16_t <a class="code" href="class_c_keller_bus.html#a9a2d75aaaf891b8db0f244ecb917847e" title="Returns EE_CTRL.">readEECTRL</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;    int8_t <a class="code" href="class_c_keller_bus.html#ac336fd7fadd91ba923f708f977160099" title="Returns the battery capacity.">readBatCapacity</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;</div>
+<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;    uint32_t <a class="code" href="class_c_keller_bus.html#a279a1a49ab2df976939a30b71b93e2f4" title="Reads the time from the specified page.">readRecordPageTime</a>(uint16_t);</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;    int16_t <a class="code" href="class_c_keller_bus.html#ad3c0ecb0b2fd154f80431ad4d8d79e9d" title="Reads the time from the specified page.">readRecordPageStartPointer</a>(uint16_t);</div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;    int16_t <a class="code" href="class_c_keller_bus.html#a7c7c020f72c0a2273ebec256be74cf99" title="&ndash;">readStartDetection</a>(uint16_t);</div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;    int16_t <a class="code" href="class_c_keller_bus.html#a1829193265e78827f250240addf6c185" title="&ndash;">readOverflowCounter</a>(uint16_t);</div>
+<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;    <span class="comment">/***</span></div>
+<div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;<span class="comment">    </span></div>
+<div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;<span class="comment">        Low level functions</span></div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;<span class="comment">    </span></div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;<span class="comment">    ***/</span></div>
+<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;</div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_keller_bus.html#add6b4a1f44d935ecfba8ce4c09d4a08e" title="Reads the speciefied bytes from the record rom.">F67</a>(uint16_t, uint8_t, uint8_t, uint8_t*, uint8_t*, uint8_t*, uint8_t*); <span class="comment">// Read out record ROM</span></div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_keller_bus.html#ac1e6b54021347e6f717a500237b4f1d8" title="Reads the speciefied bytes from the record configuration.">F92</a>(uint8_t, uint8_t*, uint8_t*, uint8_t*, uint8_t*, uint8_t*); <span class="comment">// Read out record configuration</span></div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="class_c_keller_bus.html#ac6836a63cdc9f95ab94193e8254fdfb9" title="Reads the speciefied bytes from the record configuration.">F93</a>(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t); <span class="comment">// write record configuration</span></div>
+<div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;    </div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;};</div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;</div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;<span class="preprocessor"></span></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Jul 13 2012 18:36:55 for kellerbus by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Jul 14 2012 11:46:19 for kellerbus by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

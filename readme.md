@@ -4,7 +4,7 @@
 - Arduino IDE 1.0.1
 - Time library for Arduino. http://arduino.cc/playground/Code/Time
 - RS485 compatible transceiver, like MAX487
-- compatible* Keller transmitter
+- compatible* Keller pressure transmitter/transducer
 
 ![keller transmitter 33X/35X](http://www.elektrotechnik.vogel.de/imgserver/bdb/212800/212831/4.jpg)
 
@@ -41,7 +41,6 @@ eg Series 33X/35X/36X/39X/41X/46X/DCX
 
 
 ## online resources
-- Online documentation: http://thewknd.github.com/kellerbus/
 - Github.com repo: https://github.com/thewknd/kellerbus
 - Blog (german): http://tinytiger.ch/blog/?page_id=374
 - Bus protocol description (with S30, DCX, dV2, Leo and LEX): http://www.keller-druck.ch/home_e/paprod_e/progrcode_e.asp

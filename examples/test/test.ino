@@ -25,6 +25,13 @@ void setup() {
 
 void loop() {
   uint8_t mclass,group,myear,week,cfg_p,cfg_t,cnt_t,buffer,state;
+
+  uint16_t pageAddress;
+  uint16_t actPageAddress, startPageAddress, endPageAddress, timegap;
+  uint8_t index = 0, overflow = 0, offset = 0, datatype, chan;
+  float measure;
+  char txt[4];
+
   Serial.println("\n-- KELLERBUS --");
 
   kbus.initDevice(250,&mclass,&group,&myear,&week,&buffer,&state);
@@ -135,7 +142,7 @@ void loop() {
   Serial.print("         ");
   Serial.println(kbus.readScalingValue(95),DEC);
   
-  uint16_t pageAddress;
+  
 
   Serial.println("\n\r- Record cfg -");
   Serial.print("First page      : "); 
@@ -165,20 +172,30 @@ void loop() {
   Serial.print(second(kbusTime),DEC);
   Serial.println(" (d:m:y h:m:s)");
 
-  pageAddress = kbus.readActualPageAddress();
+  actPageAddress = kbus.readActualPageAddress();
   Serial.print("Actual page     : "); 
-  Serial.println(pageAddress,DEC); 
-  uint8_t index = 0;
-  Serial.println("\n\r- Records -");
+  Serial.println(actPageAddress,DEC); 
   
+  Serial.println("\n\r- Records -");
+  startPageAddress = actPageAddress;
+  
+
   do {
     Serial.print("["); 
     Serial.print(index); 
-    Serial.println("]");
+    Serial.print("] ");
     index++;
+    endPageAddress = startPageAddress;
+    startPageAddress = kbus.readRecordPageStartPointer(startPageAddress);
 
-    pageAddress = kbus.readRecordPageStartPointer(pageAddress-1);
-    kbusTime = kbus.readRecordPageTime(pageAddress); 
+    if((overflow == 1) && (startPageAddress < actPageAddress)) {
+      overflow++;
+      startPageAddress = actPageAddress + 1;
+    } else if(startPageAddress > actPageAddress) {
+      overflow++;
+    }
+
+    kbusTime = kbus.readRecordPageTime(startPageAddress); 
     Serial.print("Record starttime: "); 
     Serial.print(day(kbusTime),DEC);
     Serial.print(".");
@@ -192,13 +209,116 @@ void loop() {
     Serial.print(":");
     Serial.print(second(kbusTime),DEC);
     Serial.println(" (d:m:y h:m:s)");
-    Serial.print("Record address  : "); 
-    Serial.println(pageAddress,DEC); 
-    Serial.print("Start detection : "); 
-    Serial.println(kbus.readStartDetection(pageAddress),BIN); 
-    Serial.print("Overflow counter: "); 
-    Serial.println(kbus.readOverflowCounter(pageAddress),BIN); 
-  } while(index < 4);
+    Serial.print("  Record address  : "); 
+    Serial.println(startPageAddress,DEC); 
+    Serial.print("  Start detection : "); 
+    Serial.println(kbus.readStartDetection(startPageAddress),BIN); 
+    Serial.print("  Overflow counter: "); 
+    Serial.println(kbus.readOverflowCounter(startPageAddress),BIN); 
+    
+
+    uint32_t tmptime;
+uint8_t buf0, buf1, buf2, buf3; 
+    /* print record data*/
+    Serial.println(" Pages "); 
+    for(pageAddress = startPageAddress; pageAddress <= endPageAddress; pageAddress++) {
+      Serial.print(" <"); 
+      Serial.print(pageAddress); 
+      Serial.print("> ");
+      Serial.print(" PAGE HEADER:"); 
+
+      kbusTime = kbus.readRecordPageTime(pageAddress); 
+      Serial.print(" Junk starttime: "); 
+      Serial.print(day(kbusTime),DEC);
+      Serial.print(".");
+      Serial.print(month(kbusTime),DEC);
+      Serial.print(".");
+      Serial.print(year(kbusTime),DEC);
+      Serial.print(" ");
+      Serial.print(hour(kbusTime),DEC);
+      Serial.print(":");
+      Serial.print(minute(kbusTime),DEC);
+      Serial.print(":");
+      Serial.println(second(kbusTime),DEC);
+      tmptime = kbusTime;
+
+      for(offset = 8; offset <= 63; offset = offset + 4 ) {
+        Serial.print("   DATA ("); 
+        Serial.print(offset); 
+        Serial.print("): "); 
+
+        if( kbus.getRecordPageContent(pageAddress, offset, &datatype,  &chan, &measure, &timegap, txt) != 1) {
+          datatype = 5;
+        }
+        switch (datatype) {
+          case 0: 
+            Serial.print("channel: "); 
+            Serial.print(chan);
+
+            Serial.print(" - value: "); 
+            Serial.print(measure); 
+
+            Serial.print(" - timegap: "); 
+            Serial.print(timegap); 
+
+            tmptime = tmptime + timegap;
+            Serial.print(" - ");
+
+            Serial.print(day(tmptime),DEC);
+            Serial.print(".");
+            Serial.print(month(tmptime),DEC);
+            Serial.print(".");
+            Serial.print(year(tmptime),DEC);
+            Serial.print(" ");
+            Serial.print(hour(tmptime),DEC);
+            Serial.print(":");
+            Serial.print(minute(tmptime),DEC);
+            Serial.print(":");
+            Serial.println(second(tmptime),DEC);
+
+            break;
+          case 1: 
+            Serial.print("timegap: "); 
+            Serial.print(timegap); 
+
+            tmptime = tmptime + timegap;
+            Serial.print(" - ");
+
+            Serial.print(day(tmptime),DEC);
+            Serial.print(".");
+            Serial.print(month(tmptime),DEC);
+            Serial.print(".");
+            Serial.print(year(tmptime),DEC);
+            Serial.print(" ");
+            Serial.print(hour(tmptime),DEC);
+            Serial.print(":");
+            Serial.print(minute(tmptime),DEC);
+            Serial.print(":");
+            Serial.println(second(tmptime),DEC);
+            break;
+          case 2: 
+            Serial.println(txt); 
+            break;
+          case 3: 
+            Serial.println("no data"); 
+            offset = 64;
+            break; 
+          case 5: 
+            Serial.println("kommunikationsfehler"); 
+            break; 
+          default:
+            Serial.print("ausnahmefehler: "); 
+            Serial.println(datatype); 
+            break; 
+        }
+
+      }
+
+    }
+
+    startPageAddress--;
+
+  } while((overflow < 2) && (kbus.getError() == RS_OK));
   
   delay(30000);
   //while(1) ;
