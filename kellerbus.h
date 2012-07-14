@@ -16,6 +16,7 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 #include <SoftwareSerial.h>
 
 // Error codes
+
 #define RS_OK                       0
 #define RS_ERROR                    -1
 #define RS_TIMEOUT                  -4
@@ -124,7 +125,7 @@ class CKellerBus
   
     void TransferData(uint8_t, uint8_t);
     
-    float readChannel(uint8_t);
+    
   
   public:  
   
@@ -133,35 +134,63 @@ class CKellerBus
   
     int8_t getError();
 
+    void setTimeout(uint16_t);
+    uint16_t getTimeout(void);
+
     void initDevice(uint8_t); 
     void initDevice(uint8_t, uint8_t*, uint8_t*, uint8_t*, uint8_t*, uint8_t*, uint8_t*); 
   
     uint8_t getDeviceAddress(void);
-    uint32_t getSerialnumber(void);
-    
-    
-    float readScalingValue(uint8_t);
-    float pressureConversion(float, uint8_t);
-    float temperatureConversion(float, uint8_t);
     void writeDeviceAddress(uint8_t);
-    
-    void readConfiguration(uint8_t*, uint8_t*, uint8_t*);
-    
-    int8_t readBatCapacity(void);
-  
-    time_t readDeviceTime(void);
-    void writeDeviceTime(uint8_t, uint8_t, uint16_t, uint8_t, uint8_t, uint8_t);
-    
+
+    uint32_t getSerialnumber(void);
+
+
+    float readChannel(uint8_t);
+
     float getCH0();
     float getP1(uint8_t);
     float getP2(uint8_t);
     float getTOB1(uint8_t);
     float getTOB2(uint8_t);
     float getT(uint8_t);
+
+    float pressureConversion(float, uint8_t);
+    float temperatureConversion(float, uint8_t);
+   
     
-    void setTimeout(uint16_t);
-    uint16_t getTimeout(void);
-    //int16_t readActualPageAddress(void);
+    void readConfiguration(uint8_t*, uint8_t*, uint8_t*);
+
+    float readScalingValue(uint8_t);
+
+    uint32_t readDeviceTime(void);
+    void writeDeviceTime(uint8_t, uint8_t, uint16_t, uint8_t, uint8_t, uint8_t);
+    int16_t readRecRomFirstPagePhysik(void);
+    int16_t readRecRomLastPagePhysik(void);
+    int16_t readActualPageAddress(void);
+    uint32_t readRecordStartTime(void); 
+    int16_t readFUNC(void);
+    int16_t readRECCTRL(void);
+    int16_t readRECCFG(void);
+    int16_t readEECTRL(void);
+    int8_t readBatCapacity(void);
+
+
+    uint32_t readRecordPageTime(uint16_t);
+    int16_t readRecordPageStartPointer(uint16_t);
+    int16_t readStartDetection(uint16_t);
+    int16_t readOverflowCounter(uint16_t);
+    /***
+    
+        Low level functions
+    
+    ***/
+
+    void F67(uint16_t, uint8_t, uint8_t, uint8_t*, uint8_t*, uint8_t*, uint8_t*); // Read out record ROM
+    void F92(uint8_t, uint8_t*, uint8_t*, uint8_t*, uint8_t*, uint8_t*); // Read out record configuration
+    void F93(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t); // write record configuration
+    
 };
+
 #endif
 

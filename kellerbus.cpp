@@ -173,7 +173,7 @@ float CKellerBus::readChannel(uint8_t Channel)
       return *(float*)(&bteArr[0]);
       
     } else {
-      return -1;
+      return -1000;
     }
   } else {
     Error = SW_INVALIDPARAM;
@@ -183,7 +183,7 @@ float CKellerBus::readChannel(uint8_t Channel)
 
 /**
   @brief Returns the scaling value. Wrapper function F30. 
-  @param  no Index of the scaling value.
+  @param no Index of the scaling value.
 
   _available values for "no"_
 
@@ -291,32 +291,203 @@ void CKellerBus::readConfiguration(uint8_t* CFG_P, uint8_t* CFG_T, uint8_t* CNT_
 } 
 
 /**
-  @brief Returns the device time
-  @return Device time in seconds since 1.1 1970 (unix time)
+  @brief Reads the speciefied bytes from the record rom
+  @param pageAddress Page address
+  @param position Start psition 0 .. 63
+  @param cntBytes Amount of bytes to read 1 .. 4
+  @param data0 First byte
+  @param data1 Second byte
+  @param data2 Third byte
+  @param data3 Fourth byte
 */
 
-time_t CKellerBus::readDeviceTime(void)
+void CKellerBus::F67(uint16_t pageAddress, uint8_t position, uint8_t cntBytes, uint8_t* data0, uint8_t* data1, uint8_t* data2, uint8_t* data3)
 {
-  uint32_t c1,c2,c3,c4;
-   
   // Prepare TxBuffer
   TxBuffer[0] = device;
+  TxBuffer[1] = 0b01111111 & 67;
+  TxBuffer[2] = highByte(pageAddress);
+  TxBuffer[3] = lowByte(pageAddress);
+  TxBuffer[4] = position;
+  TxBuffer[5] = cntBytes;
+  
+  TransferData(6,4 + cntBytes); 
+  
+  if(Error == RS_OK) {
+    *data0 = RxBuffer[2];
+    *data1 = RxBuffer[3];  
+    *data2 = RxBuffer[4];
+    *data3 = RxBuffer[5]; 
+  } 
+} 
+
+/**
+  @brief --
+  @return Start dedection bit
+*/
+
+int16_t CKellerBus::readStartDetection(uint16_t pageAddress)
+{
+  uint8_t buf0;
+
+  F67(pageAddress,0,1,&buf0,0,0,0);
+
+  if(Error == RS_OK) {
+    return (buf0 & 0b10000000); 
+  } else {
+    return -1;
+  }
+}
+
+/**
+  @brief --
+  @return Start dedection bit
+*/
+
+int16_t CKellerBus::readOverflowCounter(uint16_t pageAddress)
+{
+  uint8_t buf0;
+
+  F67(pageAddress,0,1,&buf0,0,0,0);
+
+  if(Error == RS_OK) {
+    return (buf0 & 0b01100000); 
+  } else {
+    return -1;
+  }
+}
+
+/**
+  @brief Reads the time from the specified page
+  @return Record time
+*/
+
+int16_t CKellerBus::readRecordPageStartPointer(uint16_t pageAddress)
+{
+  uint8_t buf0, buf1;
+
+  F67(pageAddress,0,2,&buf0,&buf1,0,0);
+
+  if(Error == RS_OK) {
+    return (buf0 & 0b00011111) << 8 | buf1; 
+  } else {
+    return -1;
+  }
+}
+
+/**
+  @brief Reads the time from the specified page
+  @return Record time
+*/
+
+uint32_t CKellerBus::readRecordPageTime(uint16_t pageAddress)
+{
+  uint32_t c1, c2, c3, c4; 
+  uint8_t buf0, buf1, buf2, buf3;
+
+  F67(pageAddress,2,4,&buf0,&buf1,&buf2,&buf3);
+
+  if(Error == RS_OK) {
+   
+    c1 = 16777216UL * (uint32_t)buf0;
+    c2 = 65536UL * (uint32_t)buf1;
+    c3 = 256UL * (uint32_t)buf2;
+    c4 = (uint32_t)buf3;
+
+    return (946681200UL + c1 + c2 + c3 + c4 + 3600UL);
+  
+  } else {
+    return -1;
+  }
+}
+
+/**
+  @brief Reads the speciefied bytes from the record configuration
+  @param index Configuration index
+*/
+
+void CKellerBus::F92(uint8_t index, uint8_t* data0, uint8_t* data1, uint8_t* data2, uint8_t* data3, uint8_t* data4)
+{
+  TxBuffer[0] = device;
   TxBuffer[1] = 0b01111111 & 92;
-  TxBuffer[2] = 3;
+  TxBuffer[2] = index;
   
   TransferData(3,9); 
   
   if(Error == RS_OK) {
+    *data0 = RxBuffer[2];
+    *data1 = RxBuffer[3];  
+    *data2 = RxBuffer[4];
+    *data3 = RxBuffer[5]; 
+    *data4 = RxBuffer[6]; 
+  }   
+}
+
+/**
+  @brief Reads the speciefied bytes from the record configuration
+  @param index Configuration index
+*/
+
+void CKellerBus::F93(uint8_t index, uint8_t data0, uint8_t data1, uint8_t data2, uint8_t data3, uint8_t data4)
+{
+  TxBuffer[0] = device;
+  TxBuffer[1] = 0b01111111 & 93;
+  TxBuffer[2] = index;
+  TxBuffer[3] = data0;
+  TxBuffer[4] = data1;
+  TxBuffer[5] = data2;
+  TxBuffer[6] = data3;
+  TxBuffer[7] = data4;
+  
+  TransferData(3,9);  
+}
+
+/**
+  @brief Returns the device time
+  @return Device time in seconds since 1.1 1970 (unix time)
+*/
+
+uint32_t CKellerBus::readDeviceTime(void)
+{
+  uint32_t c1, c2, c3, c4; 
+  uint8_t buf0, buf1, buf2, buf3;
+
+  F92(3,&buf0,&buf1,&buf2,&buf3,0);
+  
+  if(Error == RS_OK) {
    
-    c1 = (uint32_t)pow(2UL,24UL) * (uint32_t)RxBuffer[2];
-    c2 = (uint32_t)pow(2UL,16UL) * (uint32_t)RxBuffer[3];
-    c3 = (uint32_t)pow(2UL,8UL) * (uint32_t)RxBuffer[4];
-    c4 = (uint32_t)RxBuffer[5];
+    c1 = 16777216UL * (uint32_t)buf0;
+    c2 = 65536UL * (uint32_t)buf1;
+    c3 = 256UL * (uint32_t)buf2;
+    c4 = (uint32_t)buf3;
      
-    setTime(0, 0, 0, 1, 1, 2000); // hr - min - sec - day - month - year
-    
-    adjustTime(c1 + c2 + c3 + c4);
-    return now();
+    return (946681200UL + c1 + c2 + c3 + c4 + 3600UL);
+  
+  } else {
+    return -1;
+  }
+} 
+
+/**
+  @brief Returns the record start time
+  @return Record start time in seconds since 1.1 1970 (unix time)
+*/
+
+uint32_t CKellerBus::readRecordStartTime(void)
+{
+  uint32_t c1, c2, c3, c4;
+  uint8_t buf0, buf1, buf2, buf3;
+
+  F92(4,&buf0,&buf1,&buf2,&buf3,0);
+  
+  if(Error == RS_OK) {
+   
+    c1 = 16777216UL * (uint32_t)buf0;
+    c2 = 65536UL * (uint32_t)buf1;
+    c3 = 256UL * (uint32_t)buf2;
+    c4 = (uint32_t)buf3;
+     
+    return (946681200UL + c1 + c2 + c3 + c4 + 3600UL);
   
   } else {
     return -1;
@@ -328,27 +499,18 @@ time_t CKellerBus::readDeviceTime(void)
   @return The  address of actual record page
 */
 
-/*int16_t CKellerBus::readActualPageAddress(void)
+int16_t CKellerBus::readActualPageAddress(void)
 {
-  uint32_t c1,c2,c3,c4;
-   
-  // Prepare TxBuffer
-  TxBuffer[0] = device;
-  TxBuffer[1] = 0b01111111 & 92;
-  TxBuffer[2] = 1;
+  uint8_t buf0,buf1;
+
+  F92(1,0,0,0,&buf0,&buf1);
   
-  TransferData(3,9); 
-  
-  if(Error == RS_OK) {
-    Serial.println(RxBuffer[5],BIN);
-    Serial.println(RxBuffer[6],BIN);
-    
-    return -1;//RxBuffer[5]<<4 & RxBuffer[6];
-    
+  if(Error == RS_OK) {    
+    return buf0 << 8 | buf1;
   } else {
     return -1;
   }
-} */
+} 
 
 /**
   @brief Returns the battery capacity.
@@ -357,15 +519,120 @@ time_t CKellerBus::readDeviceTime(void)
 
 int8_t CKellerBus::readBatCapacity(void)
 {
-  // Prepare TxBuffer
-  TxBuffer[0] = device;
-  TxBuffer[1] = 0b01111111 & 92;
-  TxBuffer[2] = 8;
-  
-  TransferData(3,9); 
+  uint8_t buf0;
+
+  F92(8,0,0,0,0,&buf0);
   
   if(Error == RS_OK) {
-    return RxBuffer[6]; 
+    return buf0; 
+  } else {
+    return -1;
+  }
+} 
+
+/**
+  @brief Returns the first record page address
+  @return The first record page address
+*/
+
+int16_t CKellerBus::readRecRomFirstPagePhysik(void)
+{
+  uint8_t buf0,buf1;
+
+  F92(2,&buf0,&buf1,0,0,0);
+ 
+  if(Error == RS_OK) {
+    return buf0<<8 | buf1;   
+  } else {
+    return -1;
+  }
+} 
+
+/**
+  @brief Returns the last record page address
+  @return The last record page address 
+*/
+
+int16_t CKellerBus::readRecRomLastPagePhysik(void)
+{
+  uint8_t buf0,buf1;
+
+  F92(2,0,0,&buf0,&buf1,0);
+  
+  if(Error == RS_OK) {    
+    return buf0<<8 | buf1; 
+  } else {
+    return -1;
+  }
+} 
+
+/**
+  @brief Returns FUNC
+  @return FUNC
+*/
+
+int16_t CKellerBus::readFUNC(void)
+{
+  uint8_t buf0;
+
+  F92(0,&buf0,0,0,0,0);
+  
+  if(Error == RS_OK) {    
+    return buf0;
+  } else {
+    return -1;
+  }
+} 
+
+/**
+  @brief Returns REC_CTRL
+  @return REC_CTRL
+*/
+
+int16_t CKellerBus::readRECCTRL(void)
+{
+  uint8_t buf0;
+
+  F92(1,0,&buf0,0,0,0);
+  
+  if(Error == RS_OK) {    
+    return buf0;
+  } else {
+    return -1;
+  }
+} 
+
+/**
+  @brief Returns the record CFG
+  @return Record CFG
+*/
+
+int16_t CKellerBus::readRECCFG(void)
+{
+  uint8_t buf0;
+
+  F92(1,&buf0,0,0,0,0);
+  
+  if(Error == RS_OK) {    
+    return buf0;
+  } else {
+    return -1;
+  }
+} 
+
+/**
+  @brief Returns EE_CTRL
+  @return EE_CTRL
+*/
+
+int16_t CKellerBus::readEECTRL(void)
+{
+  uint8_t buf0;
+
+  F92(1,0,0,&buf0,0,0);
+  
+  if(Error == RS_OK) {    
+    return buf0;
   } else {
     return -1;
   }
@@ -383,33 +650,21 @@ int8_t CKellerBus::readBatCapacity(void)
 
 void CKellerBus::writeDeviceTime(uint8_t _day, uint8_t _month, uint16_t _year, uint8_t _hour, uint8_t _minute, uint8_t _second)
 {
-  uint32_t since2000,c1,c2,c3,c4;
+  uint32_t since2000,c0,c1,c2,c3;
   
-  setTime(0, 0, 0, 1, 1, 2000); // hr - min - sec - day - month - year
-  since2000 = now();
   setTime(_hour, _minute, _second, _day, _month, _year); // hr - min - sec - day - month - year
   
-  since2000 = now() - since2000;
+  since2000 = now() - 946681200UL;
   
-  c1 = since2000 / (uint32_t)pow(2UL,24UL);
+  c0 = since2000 / (uint32_t)pow(2UL,24UL);
   since2000 = since2000 % (uint32_t)pow(2UL,24UL);
-  c2 = since2000 / (uint32_t)pow(2UL,16UL);
+  c1 = since2000 / (uint32_t)pow(2UL,16UL);
   since2000 = since2000 % (uint32_t)pow(2UL,16UL);
-  c3 = since2000 / (uint32_t)pow(2UL,8UL);
+  c2 = since2000 / (uint32_t)pow(2UL,8UL);
   since2000 = since2000 % (uint32_t)pow(2UL,8UL);
-  c4 = since2000;
+  c3 = since2000;
   
-  // Prepare TxBuffer
-  TxBuffer[0] = device;
-  TxBuffer[1] = 0b01111111 & 93;
-  TxBuffer[2] = 3;
-  TxBuffer[3] = c1;
-  TxBuffer[4] = c2;
-  TxBuffer[5] = c3;
-  TxBuffer[6] = c4;
-  TxBuffer[7] = 0; // not used
-  
-  TransferData(8,5);  
+  F93(3, c0, c1, c2, c3, 0); 
 } 
 
 /**

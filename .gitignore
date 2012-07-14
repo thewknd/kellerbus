@@ -5,3 +5,6 @@ doc/man/
 doc/rtf/
 doc/xml/
 data/
+Doxyfile
+examples/withSoftwareSerial/00000002
+examples/withSoftwareSerial/withSoftwareSerial.fzz

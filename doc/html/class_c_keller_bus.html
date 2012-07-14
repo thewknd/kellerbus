@@ -59,46 +59,54 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a47b31c4938fc0cb68cfbec222f24676f"><td class="mdescLeft">&#160;</td><td class="mdescRight">sets up the softserial interface to the transmitter.   <a href="#a47b31c4938fc0cb68cfbec222f24676f"></a><br/></td></tr>
 <tr class="memitem:a6d46584a6a1c3102e39bba0946403c29"><td class="memItemLeft" align="right" valign="top">int8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#a6d46584a6a1c3102e39bba0946403c29">getError</a> ()</td></tr>
 <tr class="memdesc:a6d46584a6a1c3102e39bba0946403c29"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads the last error code.  <a href="#a6d46584a6a1c3102e39bba0946403c29"></a><br/></td></tr>
+<tr class="memitem:a9b7cee937eb7a40c4514a49830cc3303"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#a9b7cee937eb7a40c4514a49830cc3303">setTimeout</a> (uint16_t)</td></tr>
+<tr class="memdesc:a9b7cee937eb7a40c4514a49830cc3303"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the transmission timeout.  <a href="#a9b7cee937eb7a40c4514a49830cc3303"></a><br/></td></tr>
+<tr class="memitem:ac0fdb77fb6896f2013878f44c944ee95"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#ac0fdb77fb6896f2013878f44c944ee95">getTimeout</a> (void)</td></tr>
+<tr class="memdesc:ac0fdb77fb6896f2013878f44c944ee95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the transmission timeout.  <a href="#ac0fdb77fb6896f2013878f44c944ee95"></a><br/></td></tr>
 <tr class="memitem:af8120b2c915833a1e302a7a22a261a8b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#af8120b2c915833a1e302a7a22a261a8b">initDevice</a> (uint8_t)</td></tr>
 <tr class="memdesc:af8120b2c915833a1e302a7a22a261a8b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Device initialization. Wrapper for F48.  <a href="#af8120b2c915833a1e302a7a22a261a8b"></a><br/></td></tr>
 <tr class="memitem:a9244dd9493fdf708cea1250c6e13b22a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#a9244dd9493fdf708cea1250c6e13b22a">initDevice</a> (uint8_t, uint8_t *, uint8_t *, uint8_t *, uint8_t *, uint8_t *, uint8_t *)</td></tr>
 <tr class="memdesc:a9244dd9493fdf708cea1250c6e13b22a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Device initialization. Wrapper for F48.  <a href="#a9244dd9493fdf708cea1250c6e13b22a"></a><br/></td></tr>
 <tr class="memitem:aa7548a84ebb8065e2dbd35ce29287f2f"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#aa7548a84ebb8065e2dbd35ce29287f2f">getDeviceAddress</a> (void)</td></tr>
 <tr class="memdesc:aa7548a84ebb8065e2dbd35ce29287f2f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the device address.  <a href="#aa7548a84ebb8065e2dbd35ce29287f2f"></a><br/></td></tr>
-<tr class="memitem:afb016fe26ef5851cba411be2d46ee5de"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#afb016fe26ef5851cba411be2d46ee5de">getSerialnumber</a> (void)</td></tr>
-<tr class="memdesc:afb016fe26ef5851cba411be2d46ee5de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the serialnumber.  <a href="#afb016fe26ef5851cba411be2d46ee5de"></a><br/></td></tr>
-<tr class="memitem:a2de427b82dfa4de11c6ae0f39ed3a131"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#a2de427b82dfa4de11c6ae0f39ed3a131">readScalingValue</a> (uint8_t)</td></tr>
-<tr class="memdesc:a2de427b82dfa4de11c6ae0f39ed3a131"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the scaling value. Wrapper function F30.  <a href="#a2de427b82dfa4de11c6ae0f39ed3a131"></a><br/></td></tr>
-<tr class="memitem:a8e7cd738860bbc3438bb576c86aa8588"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#a8e7cd738860bbc3438bb576c86aa8588">pressureConversion</a> (float, uint8_t)</td></tr>
-<tr class="memdesc:a8e7cd738860bbc3438bb576c86aa8588"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts the pressure value.  <a href="#a8e7cd738860bbc3438bb576c86aa8588"></a><br/></td></tr>
-<tr class="memitem:a58ef84ebd38342486cd771f9139d9c44"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#a58ef84ebd38342486cd771f9139d9c44">temperatureConversion</a> (float, uint8_t)</td></tr>
-<tr class="memdesc:a58ef84ebd38342486cd771f9139d9c44"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts the temperature value.  <a href="#a58ef84ebd38342486cd771f9139d9c44"></a><br/></td></tr>
 <tr class="memitem:aa35a83762daf35fd7065e1f7e0f13bd3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#aa35a83762daf35fd7065e1f7e0f13bd3">writeDeviceAddress</a> (uint8_t)</td></tr>
 <tr class="memdesc:aa35a83762daf35fd7065e1f7e0f13bd3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the device address.  <a href="#aa35a83762daf35fd7065e1f7e0f13bd3"></a><br/></td></tr>
-<tr class="memitem:a31ce0818256c73bcdcef998abe6b8e8d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#a31ce0818256c73bcdcef998abe6b8e8d">readConfiguration</a> (uint8_t *, uint8_t *, uint8_t *)</td></tr>
-<tr class="memdesc:a31ce0818256c73bcdcef998abe6b8e8d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read configuration, Wrapper function F100.  <a href="#a31ce0818256c73bcdcef998abe6b8e8d"></a><br/></td></tr>
-<tr class="memitem:ac336fd7fadd91ba923f708f977160099"><td class="memItemLeft" align="right" valign="top">int8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#ac336fd7fadd91ba923f708f977160099">readBatCapacity</a> (void)</td></tr>
-<tr class="memdesc:ac336fd7fadd91ba923f708f977160099"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the actual record page address.  <a href="#ac336fd7fadd91ba923f708f977160099"></a><br/></td></tr>
-<tr class="memitem:a0d42ec23f5e1fb652f3c4c6cecb5a130"><td class="memItemLeft" align="right" valign="top">time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#a0d42ec23f5e1fb652f3c4c6cecb5a130">readDeviceTime</a> (void)</td></tr>
-<tr class="memdesc:a0d42ec23f5e1fb652f3c4c6cecb5a130"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the device time.  <a href="#a0d42ec23f5e1fb652f3c4c6cecb5a130"></a><br/></td></tr>
-<tr class="memitem:a59072e902538c239c353970b71d93d73"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#a59072e902538c239c353970b71d93d73">writeDeviceTime</a> (uint8_t, uint8_t, uint16_t, uint8_t, uint8_t, uint8_t)</td></tr>
-<tr class="memdesc:a59072e902538c239c353970b71d93d73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the device time.  <a href="#a59072e902538c239c353970b71d93d73"></a><br/></td></tr>
+<tr class="memitem:afb016fe26ef5851cba411be2d46ee5de"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#afb016fe26ef5851cba411be2d46ee5de">getSerialnumber</a> (void)</td></tr>
+<tr class="memdesc:afb016fe26ef5851cba411be2d46ee5de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the serialnumber.  <a href="#afb016fe26ef5851cba411be2d46ee5de"></a><br/></td></tr>
+<tr class="memitem:acb34968f69a601c5351c64c52bf7ffd3"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#acb34968f69a601c5351c64c52bf7ffd3">readChannel</a> (uint8_t)</td></tr>
+<tr class="memdesc:acb34968f69a601c5351c64c52bf7ffd3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the channel value. Wrapper function F73.  <a href="#acb34968f69a601c5351c64c52bf7ffd3"></a><br/></td></tr>
 <tr class="memitem:adcf9818895a6a3a1803d1af815c051cd"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#adcf9818895a6a3a1803d1af815c051cd">getCH0</a> ()</td></tr>
 <tr class="memdesc:adcf9818895a6a3a1803d1af815c051cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the value of channel CH0.  <a href="#adcf9818895a6a3a1803d1af815c051cd"></a><br/></td></tr>
 <tr class="memitem:a78cbd060cbedea36ba83e691e9ee8524"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#a78cbd060cbedea36ba83e691e9ee8524">getP1</a> (uint8_t)</td></tr>
 <tr class="memdesc:a78cbd060cbedea36ba83e691e9ee8524"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the value of channel P1.  <a href="#a78cbd060cbedea36ba83e691e9ee8524"></a><br/></td></tr>
 <tr class="memitem:abac69efbf40c865fd5f290f431eb31c9"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#abac69efbf40c865fd5f290f431eb31c9">getP2</a> (uint8_t)</td></tr>
 <tr class="memdesc:abac69efbf40c865fd5f290f431eb31c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the value of channel P2.  <a href="#abac69efbf40c865fd5f290f431eb31c9"></a><br/></td></tr>
+<tr class="memitem:a8e7cd738860bbc3438bb576c86aa8588"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#a8e7cd738860bbc3438bb576c86aa8588">pressureConversion</a> (float, uint8_t)</td></tr>
+<tr class="memdesc:a8e7cd738860bbc3438bb576c86aa8588"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts the pressure value.  <a href="#a8e7cd738860bbc3438bb576c86aa8588"></a><br/></td></tr>
 <tr class="memitem:a9edf433fb05e76c8a7fff40232e42e06"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#a9edf433fb05e76c8a7fff40232e42e06">getTOB1</a> (uint8_t)</td></tr>
 <tr class="memdesc:a9edf433fb05e76c8a7fff40232e42e06"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the value of channel TOB1.  <a href="#a9edf433fb05e76c8a7fff40232e42e06"></a><br/></td></tr>
 <tr class="memitem:afe79dc47596425f6e67916935337485b"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#afe79dc47596425f6e67916935337485b">getTOB2</a> (uint8_t)</td></tr>
 <tr class="memdesc:afe79dc47596425f6e67916935337485b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the value of channel TOB2.  <a href="#afe79dc47596425f6e67916935337485b"></a><br/></td></tr>
 <tr class="memitem:a047124403287057a158525a9a56c00d5"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#a047124403287057a158525a9a56c00d5">getT</a> (uint8_t)</td></tr>
 <tr class="memdesc:a047124403287057a158525a9a56c00d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the value of channel T.  <a href="#a047124403287057a158525a9a56c00d5"></a><br/></td></tr>
-<tr class="memitem:a9b7cee937eb7a40c4514a49830cc3303"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#a9b7cee937eb7a40c4514a49830cc3303">setTimeout</a> (uint16_t)</td></tr>
-<tr class="memdesc:a9b7cee937eb7a40c4514a49830cc3303"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the transmission timeout.  <a href="#a9b7cee937eb7a40c4514a49830cc3303"></a><br/></td></tr>
-<tr class="memitem:ac0fdb77fb6896f2013878f44c944ee95"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#ac0fdb77fb6896f2013878f44c944ee95">getTimeout</a> (void)</td></tr>
-<tr class="memdesc:ac0fdb77fb6896f2013878f44c944ee95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the transmission timeout.  <a href="#ac0fdb77fb6896f2013878f44c944ee95"></a><br/></td></tr>
+<tr class="memitem:a58ef84ebd38342486cd771f9139d9c44"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#a58ef84ebd38342486cd771f9139d9c44">temperatureConversion</a> (float, uint8_t)</td></tr>
+<tr class="memdesc:a58ef84ebd38342486cd771f9139d9c44"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts the temperature value.  <a href="#a58ef84ebd38342486cd771f9139d9c44"></a><br/></td></tr>
+<tr class="memitem:a31ce0818256c73bcdcef998abe6b8e8d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#a31ce0818256c73bcdcef998abe6b8e8d">readConfiguration</a> (uint8_t *, uint8_t *, uint8_t *)</td></tr>
+<tr class="memdesc:a31ce0818256c73bcdcef998abe6b8e8d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read configuration, Wrapper function F100.  <a href="#a31ce0818256c73bcdcef998abe6b8e8d"></a><br/></td></tr>
+<tr class="memitem:a2de427b82dfa4de11c6ae0f39ed3a131"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#a2de427b82dfa4de11c6ae0f39ed3a131">readScalingValue</a> (uint8_t)</td></tr>
+<tr class="memdesc:a2de427b82dfa4de11c6ae0f39ed3a131"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the scaling value. Wrapper function F30.  <a href="#a2de427b82dfa4de11c6ae0f39ed3a131"></a><br/></td></tr>
+<tr class="memitem:ac336fd7fadd91ba923f708f977160099"><td class="memItemLeft" align="right" valign="top">int8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#ac336fd7fadd91ba923f708f977160099">readBatCapacity</a> (void)</td></tr>
+<tr class="memdesc:ac336fd7fadd91ba923f708f977160099"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the battery capacity.  <a href="#ac336fd7fadd91ba923f708f977160099"></a><br/></td></tr>
+<tr class="memitem:a0d42ec23f5e1fb652f3c4c6cecb5a130"><td class="memItemLeft" align="right" valign="top">time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#a0d42ec23f5e1fb652f3c4c6cecb5a130">readDeviceTime</a> (void)</td></tr>
+<tr class="memdesc:a0d42ec23f5e1fb652f3c4c6cecb5a130"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the device time.  <a href="#a0d42ec23f5e1fb652f3c4c6cecb5a130"></a><br/></td></tr>
+<tr class="memitem:a59072e902538c239c353970b71d93d73"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#a59072e902538c239c353970b71d93d73">writeDeviceTime</a> (uint8_t, uint8_t, uint16_t, uint8_t, uint8_t, uint8_t)</td></tr>
+<tr class="memdesc:a59072e902538c239c353970b71d93d73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the device time.  <a href="#a59072e902538c239c353970b71d93d73"></a><br/></td></tr>
+<tr class="memitem:ac289b00100106a717afe2aecd504b27e"><td class="memItemLeft" align="right" valign="top">int16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#ac289b00100106a717afe2aecd504b27e">readActualPageAddress</a> (void)</td></tr>
+<tr class="memdesc:ac289b00100106a717afe2aecd504b27e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the actual record page address.  <a href="#ac289b00100106a717afe2aecd504b27e"></a><br/></td></tr>
+<tr class="memitem:ae218983817f626fa8a5bb3d3fc62db75"><td class="memItemLeft" align="right" valign="top">time_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#ae218983817f626fa8a5bb3d3fc62db75">readRecordStartTime</a> (void)</td></tr>
+<tr class="memdesc:ae218983817f626fa8a5bb3d3fc62db75"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the record start time.  <a href="#ae218983817f626fa8a5bb3d3fc62db75"></a><br/></td></tr>
+<tr class="memitem:ae9d83d77f307bb9ae563ac8daae995a4"><td class="memItemLeft" align="right" valign="top">int8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_c_keller_bus.html#ae9d83d77f307bb9ae563ac8daae995a4">readRecordROM</a> (uint16_t, uint8_t, uint8_t, uint8_t *, uint8_t *, uint8_t *, uint8_t *)</td></tr>
+<tr class="memdesc:ae9d83d77f307bb9ae563ac8daae995a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the actual record page address.  <a href="#ae9d83d77f307bb9ae563ac8daae995a4"></a><br/></td></tr>
 </table>
 <hr/><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a0b8270d1adf09b681c4d0822c917468e"></a>
@@ -578,6 +586,25 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="ac289b00100106a717afe2aecd504b27e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int16_t CKellerBus::readActualPageAddress </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the actual record page address. </p>
+<dl class="section return"><dt>Returns:</dt><dd>The address of actual record page </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="ac336fd7fadd91ba923f708f977160099"></a>
 <div class="memitem">
 <div class="memproto">
@@ -592,10 +619,42 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Returns the actual record page address. </p>
-<dl class="section return"><dt>Returns:</dt><dd>The address of actual record page Returns the battery capacity. </dd>
-<dd>
-Battery caoacity in percent. </dd></dl>
+<p>Returns the battery capacity. </p>
+<dl class="section return"><dt>Returns:</dt><dd>Battery caoacity in percent. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="acb34968f69a601c5351c64c52bf7ffd3"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float CKellerBus::readChannel </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>Channel</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the channel value. Wrapper function F73. </p>
+<dl class="params"><dt>Parameters:</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">Channel</td><td>Index of the channel.</td></tr>
+  </table>
+  </dd>
+</dl>
+<p><em>available values for "Channel"</em></p>
+<ul>
+<li>CH_0</li>
+<li>CH_P1</li>
+<li>CH_P2</li>
+<li>CH_T</li>
+<li>CH_TOB1</li>
+<li>CH_TOB2</li>
+</ul>
+<dl class="section return"><dt>Returns:</dt><dd>Channel value. </dd></dl>
 
 </div>
 </div>
@@ -657,6 +716,84 @@ Battery caoacity in percent. </dd></dl>
 
 <p>Returns the device time. </p>
 <dl class="section return"><dt>Returns:</dt><dd>Device time in seconds since 1.1 1970 (unix time) </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ae9d83d77f307bb9ae563ac8daae995a4"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int8_t CKellerBus::readRecordROM </td>
+          <td>(</td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>pageAddress</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>position</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>cntBytes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>data0</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>data1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>data2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>data3</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the actual record page address. </p>
+<dl class="section return"><dt>Returns:</dt><dd>The address of actual record page </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ae218983817f626fa8a5bb3d3fc62db75"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">time_t CKellerBus::readRecordStartTime </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the record start time. </p>
+<dl class="section return"><dt>Returns:</dt><dd>Record start time in seconds since 1.1 1970 (unix time) </dd></dl>
 
 </div>
 </div>
@@ -871,7 +1008,7 @@ Battery caoacity in percent. </dd></dl>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jul 10 2012 11:58:33 for kellerbus by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Jul 13 2012 18:36:55 for kellerbus by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.1.1
 </small></address>

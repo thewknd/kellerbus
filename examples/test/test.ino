@@ -9,6 +9,7 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 
 #include <kellerbus.h>
 #include <Time.h>
+#include <SoftwareSerial.h>
 
 
 CKellerBus kbus(&Serial1,9600,5,250);
@@ -134,6 +135,71 @@ void loop() {
   Serial.print("         ");
   Serial.println(kbus.readScalingValue(95),DEC);
   
-  delay(5000);
+  uint16_t pageAddress;
+
+  Serial.println("\n\r- Record cfg -");
+  Serial.print("First page      : "); 
+  Serial.println(kbus.readRecRomFirstPagePhysik(),DEC); 
+  Serial.print("Last page       : "); 
+  Serial.println(kbus.readRecRomLastPagePhysik(),DEC); 
+  Serial.print("FUNC            : "); 
+  Serial.println(kbus.readFUNC(),BIN); 
+  Serial.print("CFG             : "); 
+  Serial.println(kbus.readRECCFG(),BIN); 
+  Serial.print("REC_CTRL        : "); 
+  Serial.println(kbus.readRECCTRL(),BIN); 
+  Serial.print("EE_CTRL         : "); 
+  Serial.println(kbus.readEECTRL(),BIN); 
+  Serial.print("Record starttime: "); 
+  kbusTime = kbus.readRecordStartTime(); 
+  Serial.print(day(kbusTime),DEC);
+  Serial.print(".");
+  Serial.print(month(kbusTime),DEC);
+  Serial.print(".");
+  Serial.print(year(kbusTime),DEC);
+  Serial.print(" ");
+  Serial.print(hour(kbusTime),DEC);
+  Serial.print(":");
+  Serial.print(minute(kbusTime),DEC);
+  Serial.print(":");
+  Serial.print(second(kbusTime),DEC);
+  Serial.println(" (d:m:y h:m:s)");
+
+  pageAddress = kbus.readActualPageAddress();
+  Serial.print("Actual page     : "); 
+  Serial.println(pageAddress,DEC); 
+  uint8_t index = 0;
+  Serial.println("\n\r- Records -");
+  
+  do {
+    Serial.print("["); 
+    Serial.print(index); 
+    Serial.println("]");
+    index++;
+
+    pageAddress = kbus.readRecordPageStartPointer(pageAddress-1);
+    kbusTime = kbus.readRecordPageTime(pageAddress); 
+    Serial.print("Record starttime: "); 
+    Serial.print(day(kbusTime),DEC);
+    Serial.print(".");
+    Serial.print(month(kbusTime),DEC);
+    Serial.print(".");
+    Serial.print(year(kbusTime),DEC);
+    Serial.print(" ");
+    Serial.print(hour(kbusTime),DEC);
+    Serial.print(":");
+    Serial.print(minute(kbusTime),DEC);
+    Serial.print(":");
+    Serial.print(second(kbusTime),DEC);
+    Serial.println(" (d:m:y h:m:s)");
+    Serial.print("Record address  : "); 
+    Serial.println(pageAddress,DEC); 
+    Serial.print("Start detection : "); 
+    Serial.println(kbus.readStartDetection(pageAddress),BIN); 
+    Serial.print("Overflow counter: "); 
+    Serial.println(kbus.readOverflowCounter(pageAddress),BIN); 
+  } while(index < 4);
+  
+  delay(30000);
   //while(1) ;
 }

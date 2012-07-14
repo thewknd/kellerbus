@@ -2,6 +2,7 @@
 
 ## requirements
 - Arduino IDE 1.0.1
+- Time library for Arduino. http://arduino.cc/playground/Code/Time
 - RS485 compatible transceiver, like MAX487
 - compatible* Keller transmitter
 
@@ -25,7 +26,7 @@
 - read record (DCX)
 
 ## how to install
-1. download and copy the kellerbus folder to your Arduino library directory.<br/>on mac: /Users/_username_/Documents/Arduino
+1. download and copy the kellerbus folder to your Arduino library directory.<br/>on mac: /Users/_username_/Documents/Arduino/libraries
 2. restart the Arduino IDE
 3. Select an example from the Examples/kellerbus menu
 4. connect your compatible* Keller transmitter
@@ -42,7 +43,7 @@ eg Series 33X/35X/36X/39X/41X/46X/DCX
 ## online resources
 - Online documentation: http://thewknd.github.com/kellerbus/
 - Github.com repo: https://github.com/thewknd/kellerbus
-- Blog (german): http://tinytiger.ch/blog/
+- Blog (german): http://tinytiger.ch/blog/?page_id=374
 - Bus protocol description (with S30, DCX, dV2, Leo and LEX): http://www.keller-druck.ch/home_e/paprod_e/progrcode_e.asp
 - Bus protocol description (only for S30, but the newer one): http://www.keller-druck.ch/picts/pdf/engl/comm_protocol_e.pdf
 
