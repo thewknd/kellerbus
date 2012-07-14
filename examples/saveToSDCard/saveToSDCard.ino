@@ -23,12 +23,16 @@ bool sdCardReady = false;
 
 time_t kbusTime;
 
+File dataFile;
+char filename[] = "LOGGER00.CSV";
+
 void setup() {
   Serial.begin(115200);
   pinMode(SS, OUTPUT);
   pinMode(23, OUTPUT);
+  delay(3000);
   while (!Serial) ;
-  Serial.println("--- DATAEXPERT ---");
+  Serial.println("\n\n\r--- DATAEXPERT ---");
   Serial.println("Initializing SD card...");
 
   if (!SD.begin(chipSelect)) {
@@ -42,32 +46,38 @@ void setup() {
 
 void loop() {
 
-  File dataFile = SD.open("datalog.csv", FILE_WRITE);
-
-  if (dataFile) {
-    sdCardReady = true;
-    Serial.println("Saving data... do not disconnect");
-  } else {
-    Serial.println("error opening datalog.csv");
-  } 
-
-  uint8_t mclass,group,myear,week,cfg_p,cfg_t,cnt_t,buffer,state;
-
   uint16_t pageAddress;
   uint16_t actPageAddress, startPageAddress, endPageAddress, timegap;
   uint8_t index = 0, overflow = 0, offset = 0, datatype, chan;
   float measure;
   char txt[4];
 
-  kbus.initDevice(250,&mclass,&group,&myear,&week,&buffer,&state); 
+  uint32_t tmptime, oldtime;
+
+  kbus.initDevice(250); 
 
   actPageAddress = kbus.readActualPageAddress();
   startPageAddress = actPageAddress;
   
-  uint32_t tmptime;
-  uint8_t buf0, buf1, buf2, buf3; 
+  
 
   do {
+    char filename[] = "LOGGER00.CSV";  
+    for (uint8_t i = 0; i < 100; i++) {
+      filename[6] = i/10 + '0';
+      filename[7] = i%10 + '0';
+      if (! SD.exists(filename)) {
+        // only open a new file if it doesn't exist
+        dataFile = SD.open(filename, FILE_WRITE); 
+        break;  // leave the loop!
+      }
+    }
+
+    if (! dataFile) {
+      Serial.println("couldnt create file");
+      while(1) ;
+    }  
+
     Serial.print("\n\rRecord ["); 
     Serial.print(index); 
     Serial.print("] Progress: ");
@@ -82,13 +92,12 @@ void loop() {
       overflow++;
     }
     
-    
     for(pageAddress = startPageAddress; pageAddress <= endPageAddress; pageAddress++) {
       Serial.print("."); 
 
-
       kbusTime = kbus.readRecordPageTime(pageAddress); 
       tmptime = kbusTime;
+      oldtime = tmptime-1;
 
       for(offset = 8; offset <= 63; offset = offset + 4 ) {
 
@@ -98,13 +107,27 @@ void loop() {
 
         switch (datatype) {
           case 0: 
-            if(chan == 1) {
-
-            }
             tmptime = tmptime + timegap;
+            if(oldtime < tmptime) {
+              oldtime = tmptime;
+              dataFile.println("");
+              dataFile.print(day(tmptime),DEC);
+              dataFile.print(".");
+              dataFile.print(month(tmptime),DEC);
+              dataFile.print(".");
+              dataFile.print(year(tmptime),DEC);
+              dataFile.print(" ");
+              dataFile.print(hour(tmptime),DEC);
+              dataFile.print(":");
+              dataFile.print(minute(tmptime),DEC);
+              dataFile.print(":");
+              dataFile.print(second(tmptime),DEC);
+            }
+
+            dataFile.print(",");
+            dataFile.print(measure,10);
             break;
           case 1: 
-
             tmptime = tmptime + timegap;
             break;
           case 2: 
@@ -127,12 +150,14 @@ void loop() {
     }
 
     startPageAddress--;
+    dataFile.close();
+    delay(30); 
 
   } while((overflow < 2) && (kbus.getError() == RS_OK));
   
-  
+
   Serial.println("\n\rDone...");
 
-  delay(30000);
-  //while(1) ;
+  //delay(30000);
+  while(1) ;
 }

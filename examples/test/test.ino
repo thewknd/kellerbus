@@ -31,6 +31,7 @@ void loop() {
   uint8_t index = 0, overflow = 0, offset = 0, datatype, chan;
   float measure;
   char txt[4];
+  uint32_t tmptime;
 
   Serial.println("\n-- KELLERBUS --");
 
@@ -216,9 +217,6 @@ void loop() {
     Serial.print("  Overflow counter: "); 
     Serial.println(kbus.readOverflowCounter(startPageAddress),BIN); 
     
-
-    uint32_t tmptime;
-uint8_t buf0, buf1, buf2, buf3; 
     /* print record data*/
     Serial.println(" Pages "); 
     for(pageAddress = startPageAddress; pageAddress <= endPageAddress; pageAddress++) {
