@@ -1,10 +1,23 @@
 /**
 
+Example with Arduino Mega, stores records to the attached sd card.
+
+Pin configuration
+-----------------
+22: rts for the rs485 transceiver
+23: chip select SD card
+50: MISO 
+51: MOSI
+52: SCK
+
+TX1/RX1: RX/TX rs485 trasceiver
+
 @author thewknd
 @date 7.2012
 
 @copyright
 This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported License. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/3.0/ or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
+
 */
 
 #include <kellerbus.h>
@@ -15,11 +28,7 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 
 CKellerBus kbus(&Serial1,9600,22,250);
 
-char subfolder[] = "datalogger";
-
 const int chipSelect = 23;
-
-bool sdCardReady = false;
 
 time_t kbusTime;
 
@@ -52,16 +61,19 @@ void loop() {
   float measure;
   char txt[4];
 
-  uint32_t tmptime, oldtime;
+  uint32_t oldtime;
 
   kbus.initDevice(250); 
 
+  // get the actual page address
   actPageAddress = kbus.readActualPageAddress();
   startPageAddress = actPageAddress;
   
   
 
   do {
+
+    // create new file with a uniqe filename
     char filename[] = "LOGGER00.CSV";  
     for (uint8_t i = 0; i < 100; i++) {
       filename[6] = i/10 + '0';
@@ -82,9 +94,14 @@ void loop() {
     Serial.print(index); 
     Serial.print("] Progress: ");
     index++;
+    
+    // get the end page
     endPageAddress = startPageAddress;
+
+    // get first page of this record
     startPageAddress = kbus.readRecordPageStartPointer(startPageAddress);
 
+    // overflow handling
     if((overflow == 1) && (startPageAddress < actPageAddress)) {
       overflow++;
       startPageAddress = actPageAddress + 1;
@@ -92,43 +109,45 @@ void loop() {
       overflow++;
     }
     
+    // go trough all pages of this record
     for(pageAddress = startPageAddress; pageAddress <= endPageAddress; pageAddress++) {
       Serial.print("."); 
 
+      // get time of this page
       kbusTime = kbus.readRecordPageTime(pageAddress); 
-      tmptime = kbusTime;
-      oldtime = tmptime-1;
+      oldtime = kbusTime-1;
 
       for(offset = 8; offset <= 63; offset = offset + 4 ) {
 
+        // read out the record rom
         if( kbus.getRecordPageContent(pageAddress, offset, &datatype,  &chan, &measure, &timegap, txt) != 1) {
           datatype = 5;
         }
 
         switch (datatype) {
           case 0: 
-            tmptime = tmptime + timegap;
-            if(oldtime < tmptime) {
-              oldtime = tmptime;
+            kbusTime = kbusTime + timegap;
+            if(oldtime < kbusTime) {
+              oldtime = kbusTime;
               dataFile.println("");
-              dataFile.print(day(tmptime),DEC);
+              dataFile.print(day(kbusTime),DEC);
               dataFile.print(".");
-              dataFile.print(month(tmptime),DEC);
+              dataFile.print(month(kbusTime),DEC);
               dataFile.print(".");
-              dataFile.print(year(tmptime),DEC);
+              dataFile.print(year(kbusTime),DEC);
               dataFile.print(" ");
-              dataFile.print(hour(tmptime),DEC);
+              dataFile.print(hour(kbusTime),DEC);
               dataFile.print(":");
-              dataFile.print(minute(tmptime),DEC);
+              dataFile.print(minute(kbusTime),DEC);
               dataFile.print(":");
-              dataFile.print(second(tmptime),DEC);
+              dataFile.print(second(kbusTime),DEC);
             }
 
             dataFile.print(",");
             dataFile.print(measure,10);
             break;
           case 1: 
-            tmptime = tmptime + timegap;
+            kbusTime = kbusTime + timegap;
             break;
           case 2: 
             Serial.println(txt); 
@@ -149,7 +168,9 @@ void loop() {
 
     }
 
+    // decrement startPageAddress, this will be the end Page of the next record
     startPageAddress--;
+    // close the file
     dataFile.close();
     delay(30); 
 

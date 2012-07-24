@@ -8,8 +8,10 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 */
 
 #include <kellerbus.h>
+#include <SoftwareSerial.h>
+#include <Time.h>
 
-CKellerBus kbus(&Serial1,9600,5,100);
+CKellerBus kbus(&Serial1,9600,22,100);
 
 
 const uint16_t numOfLoops = 20;

@@ -14,66 +14,68 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
   @brief sets up the hardwareserial interface to the transmitter.
   @constructor
   @param serialPort Hardwareserial port.
-  @param _baudrate Baudrate for the hardwareserial port, usually 9600.
-  @param _rts Ready To Send Pin.
-  @param _timeout Communication timeout, in milliseconds, usually 100 (250 for DCX).
+  @param baudrate Baudrate for the hardwareserial port, usually 9600.
+  @param rts Ready To Send Pin.
+  @param timeout Communication timeout, in milliseconds, usually 100 (250 for DCX).
 */
 
-CKellerBus::CKellerBus(HardwareSerial* serialPort, uint16_t _baudrate, uint8_t _rts, uint16_t _timeout)
+CKellerBus::CKellerBus(HardwareSerial* serialPort, uint16_t baudrate, uint8_t rts, uint16_t timeout)
 {
-  baudrate = _baudrate;
-  timeout = _timeout;
-  hwSerial = serialPort;
-  RTS_PIN = _rts; 
-  useHWSerial = true;
+  _baudrate = baudrate;
+  _timeout = timeout;
+  _rts = rts; 
   
-  pinMode(RTS_PIN,OUTPUT);
-  digitalWrite(RTS_PIN,LOW);
+  useHWSerial = true;
+
+  hwSerial = serialPort;
+  
+  pinMode(_rts,OUTPUT);
+  digitalWrite(_rts,LOW);
 }
 
 /**
   @brief sets up the softserial interface to the transmitter.
   @constructor
   @param serialPort SoftwareSerial instance.
-  @param _baudrate Baudrate for the SoftwareSerial port, usually 9600.
-  @param _rts Ready To Send Pin.
-  @param _timeout Communication timeout, in milliseconds, usually 100 (250 for DCX).
+  @param baudrate Baudrate for the SoftwareSerial port, usually 9600.
+  @param rts Ready To Send Pin.
+  @param timeout Communication timeout, in milliseconds, usually 100 (250 for DCX).
 
   *note*
   - Not all pins on the Mega and Mega 2560 support change interrupts, so only the following can be used for RX: 10, 11, 12, 13, 50, 51, 52, 53, 62, 63, 64, 65, 66, 67, 68, 69
   - Not all pins on the Leonardo support change interrupts, so only the following can be used for RX: 8, 9, 10, 11, 14 (MISO), 15 (SCK), 16 (MOSI).
 */
 
-CKellerBus::CKellerBus(SoftwareSerial* serialPort, uint16_t _baudrate, uint8_t _rts, uint16_t _timeout)
+CKellerBus::CKellerBus(SoftwareSerial* serialPort, uint16_t baudrate, uint8_t rts, uint16_t timeout)
 {
-  baudrate = _baudrate;
-  timeout = _timeout;
-  RTS_PIN = _rts;
+  _baudrate = baudrate;
+  _timeout = timeout;
+  _rts = rts;
   
   useHWSerial = false;
 
   swSerial = serialPort;
   
-  pinMode(RTS_PIN,OUTPUT);
-  digitalWrite(RTS_PIN,LOW);
+  pinMode(_rts,OUTPUT);
+  digitalWrite(_rts,LOW);
 }
 
 /**
   @brief Device initialization. Wrapper for F48.
-  @param _device device address.  
+  @param device device address.  
 */
 
-void CKellerBus::initDevice(uint8_t _device) 
+void CKellerBus::initDevice(uint8_t device) 
 {
-  device = _device;
-  TxBuffer[0] = device;
+  _device = device;
+  TxBuffer[0] = _device;
   TxBuffer[1] = 0b01111111 & 48;
 
   TransferData(2,10);
   if (Error != RS_OK) {
     // 2nd try for sleeping dcx
     delay(30);
-    TxBuffer[0] = device;
+    TxBuffer[0] = _device;
     TxBuffer[1] = 0b01111111 & 48;
     TransferData(2,10);
   } 
@@ -81,37 +83,37 @@ void CKellerBus::initDevice(uint8_t _device)
 
 /**
   @brief Device initialization. Wrapper for F48.
-  @param _device Device address.  
-  @param _class Pointer for the device class. 
-  @param _group Pointer for the device group.
-  @param _year Pointer for the software version (year).
-  @param _week Pointer for the software version (week).
-  @param _buffer Buffer size.
-  @param _state Device state.    
+  @param device Device address.  
+  @param class Pointer for the device class. 
+  @param group Pointer for the device group.
+  @param year Pointer for the software version (year).
+  @param week Pointer for the software version (week).
+  @param buffer Buffer size.
+  @param state Device state.    
 */
 
-void CKellerBus::initDevice(uint8_t _device, uint8_t* _class, uint8_t* _group, uint8_t* _year, uint8_t* _week, uint8_t* _buffer, uint8_t* _state) 
+void CKellerBus::initDevice(uint8_t device, uint8_t* deviceClass, uint8_t* group, uint8_t* year, uint8_t* week, uint8_t* buffer, uint8_t* state) 
 {
-  device = _device;
-  TxBuffer[0] = device;
+  _device = device;
+  TxBuffer[0] = _device;
   TxBuffer[1] = 0b01111111 & 48;
 
   TransferData(2,10);
   if (Error != RS_OK) {
     // 2nd try for sleeping dcx
     delay(30);
-    TxBuffer[0] = device;
+    TxBuffer[0] = _device;
     TxBuffer[1] = 0b01111111 & 48;
     TransferData(2,10);
   }
   
   if (Error == RS_OK) {
-    *_class = RxBuffer[2];
-    *_group = RxBuffer[3];
-    *_year = RxBuffer[4];
-    *_week = RxBuffer[5];
-    *_buffer = RxBuffer[6];
-    *_state = RxBuffer[7];
+    *deviceClass = RxBuffer[2];
+    *group = RxBuffer[3];
+    *year = RxBuffer[4];
+    *week = RxBuffer[5];
+    *buffer = RxBuffer[6];
+    *state = RxBuffer[7];
   } 
 }
 
@@ -122,7 +124,7 @@ void CKellerBus::initDevice(uint8_t _device, uint8_t* _class, uint8_t* _group, u
 
 uint32_t CKellerBus::getSerialnumber(void) 
 {
-  TxBuffer[0] = device;
+  TxBuffer[0] = _device;
   TxBuffer[1] = 0b01111111 & 69;
 
   TransferData(2,8);
@@ -137,7 +139,7 @@ uint32_t CKellerBus::getSerialnumber(void)
 
 /**
   @brief Returns the channel value. Wrapper function F73. 
-  @param  Channel Index of the channel.
+  @param channel Index of the channel.
 
   _available values for "Channel"_
 
@@ -151,35 +153,29 @@ uint32_t CKellerBus::getSerialnumber(void)
   @return Channel value.
 */
 
-float CKellerBus::readChannel(uint8_t Channel)
+float CKellerBus::readChannel(uint8_t channel)
 {
   uint8_t bteArr[4];
   float value;
-  if ((Channel < MAX_CHANNELS) && (Channel >= 0) ) {
+  // Prepare TxBuffer
+  TxBuffer[0] = _device;
+  TxBuffer[1] = 0b01111111 & 73;
+  TxBuffer[2] = channel;
 
-    // Prepare TxBuffer
-    TxBuffer[0] = device;
-    TxBuffer[1] = 0b01111111 & 73;
-    TxBuffer[2] = Channel;
+  TransferData(3,9);
+  
+  if(Error == RS_OK) {
+    bteArr[0] = RxBuffer[5];
+    bteArr[1] = RxBuffer[4];
+    bteArr[2] = RxBuffer[3];
+    bteArr[3] = RxBuffer[2];
 
-    TransferData(3,9);
+    return *(float*)(&bteArr[0]);
     
-    if(Error == RS_OK) {
-      bteArr[0] = RxBuffer[5];
-      bteArr[1] = RxBuffer[4];
-      bteArr[2] = RxBuffer[3];
-      bteArr[3] = RxBuffer[2];
-
-      return *(float*)(&bteArr[0]);
-      
-    } else {
-      return -1000;
-    }
   } else {
-    Error = SW_INVALIDPARAM;
-    return -1000; 
+    return -1000;
   }
-}  
+}
 
 /**
   @brief Returns the scaling value. Wrapper function F30. 
@@ -221,7 +217,7 @@ float CKellerBus::readScalingValue(uint8_t no)
   if ((no <= 95) && (no >= 53) ) {
 
     // Prepare TxBuffer
-    TxBuffer[0] = device;
+    TxBuffer[0] = _device;
     TxBuffer[1] = 0b01111111 & 30;
     TxBuffer[2] = no;
 
@@ -253,14 +249,14 @@ void CKellerBus::writeDeviceAddress(uint8_t newAddress)
   if ((newAddress <= 250) && (newAddress >= 0) ) {
 
     // Prepare TxBuffer
-    TxBuffer[0] = device;
+    TxBuffer[0] = _device;
     TxBuffer[1] = 0b01111111 & 66;
     TxBuffer[2] = newAddress;
 
     TransferData(3,5);
     
     if(Error == RS_OK) {
-      device = RxBuffer[2];
+      _device = RxBuffer[2];
     }
   } else {
     Error = SW_INVALIDPARAM;
@@ -277,7 +273,7 @@ void CKellerBus::writeDeviceAddress(uint8_t newAddress)
 void CKellerBus::readConfiguration(uint8_t* CFG_P, uint8_t* CFG_T, uint8_t* CNT_T)
 {
   
-  TxBuffer[0] = device;
+  TxBuffer[0] = _device;
   TxBuffer[1] = 0b01111111 & 100;
   TxBuffer[2] = 2;
 
@@ -310,23 +306,10 @@ int8_t CKellerBus::getRecordPageContent(uint16_t pageAddress, uint16_t offset, u
       bteArr[2] = buf2;
       bteArr[3] = buf1;
       *measurement = *(float*)(&bteArr[0]);  
-      /*Serial.println("\n\rDBG VALUE");
-      Serial.println(bteArr[0],BIN);
-      Serial.println(bteArr[1],BIN);
-      Serial.println(bteArr[2],BIN);
-      Serial.println(bteArr[3],BIN);
-      Serial.println(*(float*)(&bteArr[0]));*/
-
       *datatype = 0;
 
     } else if(buf0 == 0xF0) {
       *timegap = (256 * buf2) + buf3;
-
-      /*Serial.println("\n\rDBG TimEGAP");
-      Serial.println(buf1,BIN);
-      Serial.println(buf2,BIN);
-      Serial.println(buf3,BIN);*/
-
       *datatype = 1;
 
     } else if(buf0 == 0xF4) {
@@ -348,7 +331,6 @@ int8_t CKellerBus::getRecordPageContent(uint16_t pageAddress, uint16_t offset, u
 
 }
 
-
 /**
   @brief Reads the speciefied bytes from the record rom
   @param pageAddress Page address
@@ -363,7 +345,7 @@ int8_t CKellerBus::getRecordPageContent(uint16_t pageAddress, uint16_t offset, u
 void CKellerBus::F67(uint16_t pageAddress, uint8_t position, uint8_t cntBytes, uint8_t* data0, uint8_t* data1, uint8_t* data2, uint8_t* data3)
 {
   // Prepare TxBuffer
-  TxBuffer[0] = device;
+  TxBuffer[0] = _device;
   TxBuffer[1] = 0b01111111 & 67;
   TxBuffer[2] = highByte(pageAddress);
   TxBuffer[3] = lowByte(pageAddress);
@@ -467,7 +449,7 @@ uint32_t CKellerBus::readRecordPageTime(uint16_t pageAddress)
 
 void CKellerBus::F92(uint8_t index, uint8_t* data0, uint8_t* data1, uint8_t* data2, uint8_t* data3, uint8_t* data4)
 {
-  TxBuffer[0] = device;
+  TxBuffer[0] = _device;
   TxBuffer[1] = 0b01111111 & 92;
   TxBuffer[2] = index;
   
@@ -489,7 +471,7 @@ void CKellerBus::F92(uint8_t index, uint8_t* data0, uint8_t* data1, uint8_t* dat
 
 void CKellerBus::F93(uint8_t index, uint8_t data0, uint8_t data1, uint8_t data2, uint8_t data3, uint8_t data4)
 {
-  TxBuffer[0] = device;
+  TxBuffer[0] = _device;
   TxBuffer[1] = 0b01111111 & 93;
   TxBuffer[2] = index;
   TxBuffer[3] = data0;
@@ -699,19 +681,19 @@ int16_t CKellerBus::readEECTRL(void)
 
 /**
   @brief Sets the device time.
-  @param _day Days of the new date.
-  @param _month Months of the new date.
-  @param _year Years of the new date.
-  @param _hour Hours of the new time.
-  @param _minute Minutes of the new time.
-  @param _second Seconds of the new time.
+  @param day Days of the new date.
+  @param month Months of the new date.
+  @param year Years of the new date.
+  @param hour Hours of the new time.
+  @param minute Minutes of the new time.
+  @param second Seconds of the new time.
 */
 
-void CKellerBus::writeDeviceTime(uint8_t _day, uint8_t _month, uint16_t _year, uint8_t _hour, uint8_t _minute, uint8_t _second)
+void CKellerBus::writeDeviceTime(uint8_t day, uint8_t month, uint16_t year, uint8_t hour, uint8_t minute, uint8_t second)
 {
   uint32_t since2000,c0,c1,c2,c3;
   
-  setTime(_hour, _minute, _second, _day, _month, _year); // hr - min - sec - day - month - year
+  setTime(hour, minute, second, day, month, year); // hr - min - sec - day - month - year
   
   since2000 = now() - 946681200UL;
   
@@ -760,7 +742,7 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
   // Open the RS485 connection
   open();
 
-  digitalWrite(RTS_PIN,HIGH);
+  digitalWrite(_rts,HIGH);
   delay (1);
 
   if(useHWSerial) {
@@ -781,7 +763,7 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
     }
   }
   
-  digitalWrite(RTS_PIN,LOW);   
+  digitalWrite(_rts,LOW);   
 
   if (KB_DEBUG) Serial.print(" -RX:");
 
@@ -799,12 +781,12 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
         if (b == 0){
 
           // first step, check device address
-          if(device == 250) {
+          if(_device == 250) {
             if ((RxBuffer[b] >= 1) && (RxBuffer[b] <= 250)) {
               // device address is valid
               b++;
             }
-          } else if(RxBuffer[b] == device )  {
+          } else if(RxBuffer[b] == _device )  {
             // rx buffer and tx buffer have the same device address -> ok
             b++;    
           } else {
@@ -852,12 +834,12 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
         if (b == 0){
 
           // first step, check device address
-          if(device == 250) {
+          if(_device == 250) {
             if ((RxBuffer[b] >= 1) && (RxBuffer[b] <= 250)) {
               // device address is valid
               b++;
             }
-          } else if(RxBuffer[b] == device )  {
+          } else if(RxBuffer[b] == _device )  {
             // rx buffer and tx buffer have the same device address -> ok
             b++;    
           } else {
@@ -894,9 +876,9 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
       }
     }      
     now = millis();    
-  } while((b < nRX) && (now - startTimeout <= timeout) && (Error == RS_OK)); // timeout 
+  } while((b < nRX) && (now - startTimeout <= _timeout) && (Error == RS_OK)); // timeout 
 
-  if (now - startTimeout > timeout) { // checks fo timeout error
+  if (now - startTimeout > _timeout) { // checks fo timeout error
     Error = RS_TIMEOUT;
     if (KB_DEBUG) {
       Serial.print("\r\nb:");
@@ -906,7 +888,7 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
       Serial.print("diff:");
       Serial.println(now - startTimeout);
       Serial.print("Timeout:");
-      Serial.println(timeout);
+      Serial.println(_timeout);
     }
   }
 
@@ -1035,9 +1017,9 @@ float CKellerBus::getT(uint8_t unit)
 void CKellerBus::open(void)
 {
   if(useHWSerial) {
-    hwSerial->begin(baudrate);
+    hwSerial->begin(_baudrate);
   } else {
-    swSerial->begin(baudrate);
+    swSerial->begin(_baudrate);
   }  
 }
 
@@ -1049,6 +1031,8 @@ void CKellerBus::close(void)
 {
   if(useHWSerial) {
     hwSerial->end();
+  } else {
+    swSerial->end();
   } 
 }
 
@@ -1187,12 +1171,12 @@ int8_t CKellerBus::getError(void)
 
 /**
   @brief Sets the transmission timeout.
-  @param _timeout The new timeout in milliseconds.
+  @param timeout The new timeout in milliseconds.
 */  
 
-void CKellerBus::setTimeout(uint16_t _timeout)
+void CKellerBus::setTimeout(uint16_t timeout)
 {
-  timeout = _timeout;
+  _timeout = timeout;
 }
 
 /**
@@ -1202,7 +1186,7 @@ void CKellerBus::setTimeout(uint16_t _timeout)
 
 uint16_t CKellerBus::getTimeout(void)
 {
-  return timeout;
+  return _timeout;
 }
 
 /**
@@ -1212,5 +1196,5 @@ uint16_t CKellerBus::getTimeout(void)
 
 uint8_t CKellerBus::getDeviceAddress(void)
 {
-  return device;
+  return _device;
 }

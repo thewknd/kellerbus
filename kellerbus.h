@@ -107,16 +107,16 @@ class CKellerBus
   
     CRC checksum; 
   
-    uint16_t baudrate; // baudrate for the rs485 connection
-    uint8_t RTS_PIN; // RTS hardware pin on Arduino
-    uint16_t timeout; // Communication timeout for the rs485 connection
+    uint16_t _baudrate; // baudrate for the rs485 connection
+    uint8_t _rts; // RTS hardware pin on Arduino
+    uint16_t _timeout; // Communication timeout for the rs485 connection
   
     uint8_t TxBuffer[COMM_TX_MAX]; // Transmit buffer
     uint8_t RxBuffer[COMM_TX_MAX + COMM_RX_MAX]; // Recieve buffer
   
     int8_t Error; // Error code of the last error
   
-    uint8_t device; // device address
+    uint8_t _device; // device address
     
     bool useHWSerial; // true: HardwareSerial, false: NewSoftSerial 
     

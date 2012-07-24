@@ -12,7 +12,7 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 #include <SoftwareSerial.h>
 
 
-CKellerBus kbus(&Serial1,9600,5,250);
+CKellerBus kbus(&Serial1,9600,22,250);
 
 
 time_t kbusTime;

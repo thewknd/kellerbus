@@ -21,9 +21,6 @@ SoftwareSerial mySerial(10,11);
 CKellerBus kbus(&mySerial,9600,5,100);
 
 void setup() {
-  pinMode(10, INPUT);
-  pinMode(11, OUTPUT);
-
   Serial.begin(115200);
   while (!Serial) ;
 }
