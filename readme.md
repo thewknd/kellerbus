@@ -26,7 +26,7 @@
 - read record (DCX)
 
 ## how to install
-1. download and copy the kellerbus folder to your Arduino library directory.<br/>on mac: /Users/_username_/Documents/Arduino/libraries
+1. download and copy the kellerbus folder to your Arduino library directory.<br/>on mac: /Users/_username_/Documents/Arduino/libraries<br/>Windows 7: C:\Users\_username_\Documents\Arduino\Libraries
 2. restart the Arduino IDE
 3. Select an example from the Examples/kellerbus menu
 4. connect your compatible* Keller transmitter
