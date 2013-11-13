@@ -292,33 +292,33 @@ void CKellerBus::readConfiguration(uint8_t* CFG_P, uint8_t* CFG_T, uint8_t* CNT_
 
 int8_t CKellerBus::getRecordPageContent(uint16_t pageAddress, uint16_t offset, uint8_t* datatype,  uint8_t* channel, float* measurement, uint16_t* timegap, char* desc)
 {
-  uint8_t buf0, buf1, buf2, buf3, bteArr[4]; 
+  uint8_t bteArr[4]; 
 
-  F67(pageAddress, offset, 4, &buf0, &buf1, &buf2, &buf3);
+  F67(pageAddress, offset, 4);
 
   if(Error == RS_OK) {
-    if((buf0 & 0xF0) != 0xF0) {
-      *channel = (buf0 & 0xF0) >> 4;
-      *timegap = buf0 & 0x0F;
+    if((RxBuffer[2] & 0xF0) != 0xF0) {
+      *channel = (RxBuffer[2] & 0xF0) >> 4;
+      *timegap = RxBuffer[2] & 0x0F;
 
       bteArr[0] = 0;
-      bteArr[1] = buf3;
-      bteArr[2] = buf2;
-      bteArr[3] = buf1;
+      bteArr[1] = RxBuffer[5];
+      bteArr[2] = RxBuffer[4];
+      bteArr[3] = RxBuffer[3];
       *measurement = *(float*)(&bteArr[0]);  
       *datatype = 0;
 
-    } else if(buf0 == 0xF0) {
-      *timegap = (256 * buf2) + buf3;
+    } else if(RxBuffer[2] == 0xF0) {
+      *timegap = (256 * RxBuffer[4]) + RxBuffer[5];
       *datatype = 1;
 
-    } else if(buf0 == 0xF4) {
-      desc[0] = buf1;
-      desc[1] = buf2;
-      desc[2] = buf3;
+    } else if(RxBuffer[2] == 0xF4) {
+      desc[0] = RxBuffer[3];
+      desc[1] = RxBuffer[4];
+      desc[2] = RxBuffer[5];
       *datatype = 2;
 
-    } else if(buf0 == 0xFF) {
+    } else if(RxBuffer[2] == 0xFF) {
       *datatype = 3;
     } else {
       *datatype = 4;
@@ -336,13 +336,9 @@ int8_t CKellerBus::getRecordPageContent(uint16_t pageAddress, uint16_t offset, u
   @param pageAddress Page address
   @param position Start position 0 .. 63
   @param cntBytes Amount of bytes to read 1 .. 4
-  @param data0 First byte
-  @param data1 Second byte
-  @param data2 Third byte
-  @param data3 Fourth byte
 */
 
-void CKellerBus::F67(uint16_t pageAddress, uint8_t position, uint8_t cntBytes, uint8_t* data0, uint8_t* data1, uint8_t* data2, uint8_t* data3)
+void CKellerBus::F67(uint16_t pageAddress, uint8_t position, uint8_t cntBytes)
 {
   // Prepare TxBuffer
   TxBuffer[0] = _device;
@@ -354,12 +350,6 @@ void CKellerBus::F67(uint16_t pageAddress, uint8_t position, uint8_t cntBytes, u
   
   TransferData(6,4 + cntBytes); 
   
-  if(Error == RS_OK) {
-    *data0 = RxBuffer[2];
-    *data1 = RxBuffer[3];  
-    *data2 = RxBuffer[4];
-    *data3 = RxBuffer[5]; 
-  } 
 } 
 
 /**
@@ -369,12 +359,11 @@ void CKellerBus::F67(uint16_t pageAddress, uint8_t position, uint8_t cntBytes, u
 
 int16_t CKellerBus::readStartDetection(uint16_t pageAddress)
 {
-  uint8_t buf0;
 
-  F67(pageAddress,0,1,&buf0,0,0,0);
+  F67(pageAddress,0,1);
 
   if(Error == RS_OK) {
-    return (buf0 & 0b10000000) >> 7; 
+    return (RxBuffer[2] & 0b10000000) >> 7; 
   } else {
     return -1;
   }
@@ -387,12 +376,11 @@ int16_t CKellerBus::readStartDetection(uint16_t pageAddress)
 
 int16_t CKellerBus::readOverflowCounter(uint16_t pageAddress)
 {
-  uint8_t buf0;
 
-  F67(pageAddress,0,1,&buf0,0,0,0);
+  F67(pageAddress,0,1);
 
   if(Error == RS_OK) {
-    return (buf0 & 0b01100000) >> 5; 
+    return (RxBuffer[2] & 0b01100000) >> 5; 
   } else {
     return -1;
   }
@@ -405,12 +393,11 @@ int16_t CKellerBus::readOverflowCounter(uint16_t pageAddress)
 
 int16_t CKellerBus::readRecordPageStartPointer(uint16_t pageAddress)
 {
-  uint8_t buf0, buf1;
 
-  F67(pageAddress,0,2,&buf0,&buf1,0,0);
+  F67(pageAddress,0,2);
 
   if(Error == RS_OK) {
-    return (buf0 & 0b00011111) << 8 | buf1; 
+    return (RxBuffer[2] & 0b00011111) << 8 | RxBuffer[3]; 
   } else {
     return -1;
   }
@@ -424,16 +411,15 @@ int16_t CKellerBus::readRecordPageStartPointer(uint16_t pageAddress)
 uint32_t CKellerBus::readRecordPageTime(uint16_t pageAddress)
 {
   uint32_t c1, c2, c3, c4; 
-  uint8_t buf0, buf1, buf2, buf3;
 
-  F67(pageAddress,2,4,&buf0,&buf1,&buf2,&buf3);
+  F67(pageAddress,2,4);
 
   if(Error == RS_OK) {
    
-    c1 = 16777216UL * (uint32_t)buf0;
-    c2 = 65536UL * (uint32_t)buf1;
-    c3 = 256UL * (uint32_t)buf2;
-    c4 = (uint32_t)buf3;
+    c1 = 16777216UL * (uint32_t)RxBuffer[2];
+    c2 = 65536UL * (uint32_t)RxBuffer[3];
+    c3 = 256UL * (uint32_t)RxBuffer[4];
+    c4 = (uint32_t)RxBuffer[5];
 
     return (946681200UL + c1 + c2 + c3 + c4 + 3600UL);
   
@@ -447,21 +433,13 @@ uint32_t CKellerBus::readRecordPageTime(uint16_t pageAddress)
   @param index Configuration index
 */
 
-void CKellerBus::F92(uint8_t index, uint8_t* data0, uint8_t* data1, uint8_t* data2, uint8_t* data3, uint8_t* data4)
+void CKellerBus::F92(uint8_t index)
 {
   TxBuffer[0] = _device;
   TxBuffer[1] = 0b01111111 & 92;
   TxBuffer[2] = index;
   
-  TransferData(3,9); 
-  
-  if(Error == RS_OK) {
-    *data0 = RxBuffer[2];
-    *data1 = RxBuffer[3];  
-    *data2 = RxBuffer[4];
-    *data3 = RxBuffer[5]; 
-    *data4 = RxBuffer[6]; 
-  }   
+  TransferData(3,9);   
 }
 
 /**
@@ -491,16 +469,15 @@ void CKellerBus::F93(uint8_t index, uint8_t data0, uint8_t data1, uint8_t data2,
 uint32_t CKellerBus::readDeviceTime(void)
 {
   uint32_t c1, c2, c3, c4; 
-  uint8_t buf0, buf1, buf2, buf3;
 
-  F92(3,&buf0,&buf1,&buf2,&buf3,0);
+  F92(3);
   
   if(Error == RS_OK) {
    
-    c1 = 16777216UL * (uint32_t)buf0;
-    c2 = 65536UL * (uint32_t)buf1;
-    c3 = 256UL * (uint32_t)buf2;
-    c4 = (uint32_t)buf3;
+    c1 = 16777216UL * (uint32_t)RxBuffer[2];
+    c2 = 65536UL * (uint32_t)RxBuffer[3];
+    c3 = 256UL * (uint32_t)RxBuffer[4];
+    c4 = (uint32_t)RxBuffer[5];
      
     return (946681200UL + c1 + c2 + c3 + c4 + 3600UL);
   
@@ -517,16 +494,15 @@ uint32_t CKellerBus::readDeviceTime(void)
 uint32_t CKellerBus::readRecordStartTime(void)
 {
   uint32_t c1, c2, c3, c4;
-  uint8_t buf0, buf1, buf2, buf3;
 
-  F92(4,&buf0,&buf1,&buf2,&buf3,0);
+  F92(4);
   
   if(Error == RS_OK) {
    
-    c1 = 16777216UL * (uint32_t)buf0;
-    c2 = 65536UL * (uint32_t)buf1;
-    c3 = 256UL * (uint32_t)buf2;
-    c4 = (uint32_t)buf3;
+    c1 = 16777216UL * (uint32_t)RxBuffer[2];
+    c2 = 65536UL * (uint32_t)RxBuffer[3];
+    c3 = 256UL * (uint32_t)RxBuffer[4];
+    c4 = (uint32_t)RxBuffer[5];
      
     return (946681200UL + c1 + c2 + c3 + c4 + 3600UL);
   
@@ -542,12 +518,10 @@ uint32_t CKellerBus::readRecordStartTime(void)
 
 int16_t CKellerBus::readActualPageAddress(void)
 {
-  uint8_t buf0,buf1;
-
-  F92(1,0,0,0,&buf0,&buf1);
+  F92(1);
   
   if(Error == RS_OK) {    
-    return buf0 << 8 | buf1;
+    return RxBuffer[5] << 8 | RxBuffer[6];
   } else {
     return -1;
   }
@@ -558,14 +532,12 @@ int16_t CKellerBus::readActualPageAddress(void)
   @return Battery caoacity in percent.
 */
 
-int8_t CKellerBus::readBatCapacity(void)
+int16_t CKellerBus::readBatCapacity(void)
 {
-  uint8_t buf0;
+  F92(8);
 
-  F92(8,0,0,0,0,&buf0);
-  
   if(Error == RS_OK) {
-    return buf0; 
+    return RxBuffer[6]; 
   } else {
     return -1;
   }
@@ -578,12 +550,11 @@ int8_t CKellerBus::readBatCapacity(void)
 
 int16_t CKellerBus::readRecRomFirstPagePhysik(void)
 {
-  uint8_t buf0,buf1;
 
-  F92(2,&buf0,&buf1,0,0,0);
+  F92(2);
  
   if(Error == RS_OK) {
-    return buf0<<8 | buf1;   
+    return RxBuffer[2]<<8 | RxBuffer[3];   
   } else {
     return -1;
   }
@@ -596,12 +567,11 @@ int16_t CKellerBus::readRecRomFirstPagePhysik(void)
 
 int16_t CKellerBus::readRecRomLastPagePhysik(void)
 {
-  uint8_t buf0,buf1;
 
-  F92(2,0,0,&buf0,&buf1,0);
+  F92(2);
   
   if(Error == RS_OK) {    
-    return buf0<<8 | buf1; 
+    return RxBuffer[4]<<8 | RxBuffer[5]; 
   } else {
     return -1;
   }
@@ -614,12 +584,11 @@ int16_t CKellerBus::readRecRomLastPagePhysik(void)
 
 int16_t CKellerBus::readFUNC(void)
 {
-  uint8_t buf0;
 
-  F92(0,&buf0,0,0,0,0);
+  F92(0);
   
   if(Error == RS_OK) {    
-    return buf0;
+    return RxBuffer[2];
   } else {
     return -1;
   }
@@ -632,12 +601,11 @@ int16_t CKellerBus::readFUNC(void)
 
 int16_t CKellerBus::readRECCTRL(void)
 {
-  uint8_t buf0;
 
-  F92(1,0,&buf0,0,0,0);
+  F92(1);
   
   if(Error == RS_OK) {    
-    return buf0;
+    return RxBuffer[3];
   } else {
     return -1;
   }
@@ -650,12 +618,11 @@ int16_t CKellerBus::readRECCTRL(void)
 
 int16_t CKellerBus::readRECCFG(void)
 {
-  uint8_t buf0;
 
-  F92(1,&buf0,0,0,0,0);
+  F92(1);
   
   if(Error == RS_OK) {    
-    return buf0;
+    return RxBuffer[2];
   } else {
     return -1;
   }
@@ -668,12 +635,11 @@ int16_t CKellerBus::readRECCFG(void)
 
 int16_t CKellerBus::readEECTRL(void)
 {
-  uint8_t buf0;
 
-  F92(1,0,0,&buf0,0,0);
+  F92(1);
   
   if(Error == RS_OK) {    
-    return buf0;
+    return RxBuffer[4];
   } else {
     return -1;
   }
@@ -719,6 +685,8 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
   uint16_t Crc, p, now, startTimeout; 
   uint16_t b = 0; // counts the incoming bytes
 
+  uint16_t cntp;
+
   Error = RS_OK;
   // Clear RxBuffer
   for(b = 0; b < COMM_TX_MAX + COMM_RX_MAX; b++) {
@@ -732,7 +700,7 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
   TxBuffer[nTX+1]= Crc&0xFF;  
 
   if (KB_DEBUG) {
-    Serial.print("TX:");
+    Serial.print("\nTX:");
     for(p = 0; p < nTX + 2; p++) {
       Serial.print(TxBuffer[p],DEC);
       Serial.print ("'") ;
@@ -748,12 +716,9 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
   if(useHWSerial) {
     if(hwSerial->write(TxBuffer,(int)(nTX + 2)) != (nTX + 2)) {
       Error = RS_TXERROR;
+      //delay(10);
     }
-
-    while (!(UCSR1A & (1 << UDRE1))) {
-      UCSR1A |= 1 << TXC1;
-    }
-    while (!(UCSR1A & (1 << TXC1)));
+    hwSerial->flush();
   }
 
 
@@ -761,9 +726,10 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
     if(swSerial->write(TxBuffer,(int)(nTX + 2)) != (nTX + 2)) {
       Error = RS_TXERROR;
     }
+    delay(1);
   }
-  
-  digitalWrite(_rts,LOW);   
+  //delay(10);
+  digitalWrite(_rts,LOW);  
 
   if (KB_DEBUG) Serial.print(" -RX:");
 
@@ -897,6 +863,14 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
     Crc = checksum.CRC16(RxBuffer,b-2);
 
     if (KB_DEBUG) {
+      
+     /* Serial.print("\r\nRXBUF: "); 
+      for(cntp = 0; cntp < COMM_TX_MAX + COMM_RX_MAX; cntp++) {
+        Serial.print("\n");
+        Serial.print(cntp);
+        Serial.print(": ");
+        Serial.print(RxBuffer[cntp]);
+      }*/
       Serial.print("\r\nCRC: HB:"); 
       Serial.print(highByte(Crc));
       Serial.print(" LB:");
@@ -910,7 +884,6 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
       if (KB_DEBUG)Serial.println("*** BAD CRC");
     } 
   }
-
   // if the exception flag was set
   if((RxBuffer[1] & 0x80)) {
     switch (RxBuffer[2]) {

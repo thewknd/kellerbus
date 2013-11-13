@@ -173,7 +173,7 @@ class CKellerBus
     int16_t readRECCTRL(void);
     int16_t readRECCFG(void);
     int16_t readEECTRL(void);
-    int8_t readBatCapacity(void);
+    int16_t readBatCapacity(void);
 
 
     uint32_t readRecordPageTime(uint16_t);
@@ -190,8 +190,8 @@ class CKellerBus
     
     ***/
 
-    void F67(uint16_t, uint8_t, uint8_t, uint8_t*, uint8_t*, uint8_t*, uint8_t*); // Read out record ROM
-    void F92(uint8_t, uint8_t*, uint8_t*, uint8_t*, uint8_t*, uint8_t*); // Read out record configuration
+    void F67(uint16_t, uint8_t, uint8_t); // Read out record ROM
+    void F92(uint8_t); // Read out record configuration
     void F93(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t); // Write record configuration
     
 };
