@@ -52,10 +52,10 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 
 // temperature conversation
 
-#define T_DEGC                      0     // 캜 Celsius
-#define T_DEGK                      1     // 캩 Kelvin
-#define T_DEGF                      2     // 캟 Fahreinheit
-#define T_DEGR                      3     // 캲 Rankine
+#define T_DEGC                      0     // 째C Celsius
+#define T_DEGK                      1     // 째K Kelvin
+#define T_DEGF                      2     // 째F Fahreinheit
+#define T_DEGR                      3     // 째R Rankine
 
 #define MAX_CHANNELS                6
 
@@ -102,8 +102,8 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 class CKellerBus
 {
   private:
-    HardwareSerial *hwSerial;
-    SoftwareSerial *swSerial;
+    
+    Stream* hwSerial;
   
     CRC checksum; 
   
@@ -112,25 +112,29 @@ class CKellerBus
     uint16_t _timeout; // Communication timeout for the rs485 connection
   
     uint8_t TxBuffer[COMM_TX_MAX]; // Transmit buffer
-    uint8_t RxBuffer[COMM_TX_MAX + COMM_RX_MAX]; // Recieve buffer
+    uint8_t RxBuffer[COMM_TX_MAX + COMM_RX_MAX]; // Receive buffer
   
     int8_t Error; // Error code of the last error
   
     uint8_t _device; // device address
-    
-    bool useHWSerial; // true: HardwareSerial, false: NewSoftSerial 
-    
-    void open(void);
-    void close(void);
   
     void TransferData(uint8_t, uint8_t);
+
+    /***
+    
+        Low level functions
+    
+    ***/
+
+    void F67(uint16_t, uint8_t, uint8_t); // Read out record ROM
+    void F92(uint8_t); // Read out record configuration
+    void F93(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t); // Write record configuration
     
     
   
   public:  
   
-    CKellerBus(HardwareSerial*, uint16_t, uint8_t, uint16_t); // constructor for HWSerial
-    CKellerBus(SoftwareSerial*, uint16_t, uint8_t, uint16_t); // constructor for SoftSerial
+    CKellerBus(Stream*, uint16_t, uint8_t, uint16_t); // constructor for HWSerial
   
     int8_t getError();
 
@@ -184,15 +188,7 @@ class CKellerBus
 
     int8_t getRecordPageContent(uint16_t, uint16_t, uint8_t*,  uint8_t*, float*, uint16_t*, char*);
 
-    /***
     
-        Low level functions
-    
-    ***/
-
-    void F67(uint16_t, uint8_t, uint8_t); // Read out record ROM
-    void F92(uint8_t); // Read out record configuration
-    void F93(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t); // Write record configuration
     
 };
 

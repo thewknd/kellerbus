@@ -1,7 +1,7 @@
 /**
 
 @author thewknd
-@date 7.2012
+@date 2013-11-14
 
 @copyright
 This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported License. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/3.0/ or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
@@ -11,7 +11,7 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 #include <SoftwareSerial.h>
 #include <Time.h>
 
-CKellerBus kbus(&Serial1,9600,22,100);
+CKellerBus kbus((Stream*)&Serial3,9600,5,100);
 
 
 const uint16_t numOfLoops = 20;
@@ -21,6 +21,7 @@ void setup() {
   Serial.begin(115200);
   while (!Serial) ;
   Serial.println("\n--- KELLERBUS --- BENCHMARK ---");
+  Serial3.begin(9600);
   kbus.initDevice(250);
 }
 

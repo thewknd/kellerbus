@@ -26,7 +26,7 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 #include <SD.h>
 
 
-CKellerBus kbus(&Serial1,9600,22,250);
+CKellerBus kbus((Stream*)&Serial1,9600,22,250);
 
 const int chipSelect = 23;
 
@@ -37,6 +37,7 @@ char filename[] = "LOGGER00.CSV";
 
 void setup() {
   Serial.begin(115200);
+  Serial1.begin(9600);
   pinMode(SS, OUTPUT);
   pinMode(23, OUTPUT);
   delay(3000);

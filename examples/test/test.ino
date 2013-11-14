@@ -12,13 +12,14 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 #include <SoftwareSerial.h>
 
 
-CKellerBus kbus(&Serial1,9600,22,250);
+CKellerBus kbus((Stream*)&Serial1,9600,22,250);
 
 
 time_t kbusTime;
 
 void setup() {
   Serial.begin(115200);
+  Serial1.begin(9600);
   while (!Serial) ;
 }
 

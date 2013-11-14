@@ -13,19 +13,17 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 /**
   @brief sets up the hardwareserial interface to the transmitter.
   @constructor
-  @param serialPort Hardwareserial port.
+  @param serialPort Stream* object.
   @param baudrate Baudrate for the hardwareserial port, usually 9600.
   @param rts Ready To Send Pin.
   @param timeout Communication timeout, in milliseconds, usually 100 (250 for DCX).
 */
 
-CKellerBus::CKellerBus(HardwareSerial* serialPort, uint16_t baudrate, uint8_t rts, uint16_t timeout)
+CKellerBus::CKellerBus(Stream* serialPort, uint16_t baudrate, uint8_t rts, uint16_t timeout)
 {
   _baudrate = baudrate;
   _timeout = timeout;
   _rts = rts; 
-  
-  useHWSerial = true;
 
   hwSerial = serialPort;
   
@@ -33,20 +31,7 @@ CKellerBus::CKellerBus(HardwareSerial* serialPort, uint16_t baudrate, uint8_t rt
   digitalWrite(_rts,LOW);
 }
 
-/**
-  @brief sets up the softserial interface to the transmitter.
-  @constructor
-  @param serialPort SoftwareSerial instance.
-  @param baudrate Baudrate for the SoftwareSerial port, usually 9600.
-  @param rts Ready To Send Pin.
-  @param timeout Communication timeout, in milliseconds, usually 100 (250 for DCX).
-
-  *note*
-  - Not all pins on the Mega and Mega 2560 support change interrupts, so only the following can be used for RX: 10, 11, 12, 13, 50, 51, 52, 53, 62, 63, 64, 65, 66, 67, 68, 69
-  - Not all pins on the Leonardo support change interrupts, so only the following can be used for RX: 8, 9, 10, 11, 14 (MISO), 15 (SCK), 16 (MOSI).
-*/
-
-CKellerBus::CKellerBus(SoftwareSerial* serialPort, uint16_t baudrate, uint8_t rts, uint16_t timeout)
+/*CKellerBus::CKellerBus(SoftwareSerial *serialPort, uint16_t baudrate, uint8_t rts, uint16_t timeout)
 {
   _baudrate = baudrate;
   _timeout = timeout;
@@ -58,7 +43,7 @@ CKellerBus::CKellerBus(SoftwareSerial* serialPort, uint16_t baudrate, uint8_t rt
   
   pinMode(_rts,OUTPUT);
   digitalWrite(_rts,LOW);
-}
+}*/
 
 /**
   @brief Device initialization. Wrapper for F48.
@@ -108,12 +93,12 @@ void CKellerBus::initDevice(uint8_t device, uint8_t* deviceClass, uint8_t* group
   }
   
   if (Error == RS_OK) {
-    *deviceClass = RxBuffer[2];
-    *group = RxBuffer[3];
-    *year = RxBuffer[4];
-    *week = RxBuffer[5];
-    *buffer = RxBuffer[6];
-    *state = RxBuffer[7];
+    if (*deviceClass != 0) {*deviceClass = RxBuffer[2];}
+    if (*group != 0) {*group = RxBuffer[3];}
+    if (*year != 0) {*buffer = RxBuffer[4];}
+    if (*week != 0) {*week = RxBuffer[5];}
+    if (*buffer != 0) {*buffer = RxBuffer[6];}
+    if (*state != 0) {*state = RxBuffer[7];}
   } 
 }
 
@@ -685,8 +670,6 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
   uint16_t Crc, p, now, startTimeout; 
   uint16_t b = 0; // counts the incoming bytes
 
-  uint16_t cntp;
-
   Error = RS_OK;
   // Clear RxBuffer
   for(b = 0; b < COMM_TX_MAX + COMM_RX_MAX; b++) {
@@ -708,27 +691,14 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
   }
 
   // Open the RS485 connection
-  open();
-
   digitalWrite(_rts,HIGH);
   delay (1);
 
-  if(useHWSerial) {
-    if(hwSerial->write(TxBuffer,(int)(nTX + 2)) != (nTX + 2)) {
-      Error = RS_TXERROR;
-      //delay(10);
-    }
-    hwSerial->flush();
+  if(hwSerial->write(TxBuffer,(int)(nTX + 2)) != (nTX + 2)) {
+    Error = RS_TXERROR;
   }
+  hwSerial->flush();
 
-
-  if(!useHWSerial) {
-    if(swSerial->write(TxBuffer,(int)(nTX + 2)) != (nTX + 2)) {
-      Error = RS_TXERROR;
-    }
-    delay(1);
-  }
-  //delay(10);
   digitalWrite(_rts,LOW);  
 
   if (KB_DEBUG) Serial.print(" -RX:");
@@ -737,110 +707,56 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
   startTimeout = millis();
   do {
     
-    // hardwareSerial as serialPort
-    if(useHWSerial) {
-      if (hwSerial->available() > 0) {
-        // incoming byte
-        RxBuffer[b] = hwSerial->read();
-        if (KB_DEBUG) Serial.print(RxBuffer[b],DEC); 
+    if (hwSerial->available() > 0) {
+      // incoming byte
+      RxBuffer[b] = hwSerial->read();
+      if (KB_DEBUG) Serial.print(RxBuffer[b],DEC); 
 
-        if (b == 0){
+      if (b == 0){
 
-          // first step, check device address
-          if(_device == 250) {
-            if ((RxBuffer[b] >= 1) && (RxBuffer[b] <= 250)) {
-              // device address is valid
-              b++;
-            }
-          } else if(RxBuffer[b] == _device )  {
-            // rx buffer and tx buffer have the same device address -> ok
-            b++;    
-          } else {
-            // wrong device address
-            if (KB_DEBUG) Serial.print(" -ERROR: DEVICE ADDRESS-");
-          }
-        } else if(b == 1) {
-          // second step, check for function code
-          // handles exception errors (communication protocol: 3.3.2.2 / Exception errors )
-
-          if(RxBuffer[b] != (0x80 | TxBuffer[b])) { 
-
-            if( RxBuffer[b] == TxBuffer[b]) {
-              // the transmitted and the received function code are the same 
-              b++;
-            } else {
-              // function code was wrong, go back to the first step
-              b = 0;
-              if (KB_DEBUG) Serial.print(" -ERROR: FUNCTION CODE-");
-            }
-          } else {
-            // exception error flag is set
+        // first step, check device address
+        if(_device == 250) {
+          if ((RxBuffer[b] >= 1) && (RxBuffer[b] <= 250)) {
+            // device address is valid
             b++;
-            nRX = 3;
-            if (KB_DEBUG) Serial.print(" -EXCEPTION- ");
+          }
+        } else if(RxBuffer[b] == _device )  {
+          // rx buffer and tx buffer have the same device address -> ok
+          b++;    
+        } else {
+          // wrong device address
+          if (KB_DEBUG) Serial.print(" -ERROR: DEVICE ADDRESS-");
+        }
+      } else if(b == 1) {
+        // second step, check for function code
+        // handles exception errors (communication protocol: 3.3.2.2 / Exception errors )
+
+        if(RxBuffer[b] != (0x80 | TxBuffer[b])) { 
+
+          if( RxBuffer[b] == TxBuffer[b]) {
+            // the transmitted and the received function code are the same 
+            b++;
+          } else {
+            // function code was wrong, go back to the first step
+            b = 0;
+            if (KB_DEBUG) Serial.print(" -ERROR: FUNCTION CODE-");
           }
         } else {
-         // step > 2
+          // exception error flag is set
           b++;
+          nRX = 3;
+          if (KB_DEBUG) Serial.print(" -EXCEPTION- ");
         }
-
-        if (KB_DEBUG) Serial.print("'");      
-
-        startTimeout = millis();  
+      } else {
+       // step > 2
+        b++;
       }
+
+      if (KB_DEBUG) Serial.print("'");      
+
+      startTimeout = millis();  
     }
-
-    // softwareSerial as serialPort
-    if(!useHWSerial) {
-      if (swSerial->available() > 0) {
-        // incoming byte
-        RxBuffer[b] = swSerial->read();
-        if (KB_DEBUG) Serial.print(RxBuffer[b],DEC); 
-
-        if (b == 0){
-
-          // first step, check device address
-          if(_device == 250) {
-            if ((RxBuffer[b] >= 1) && (RxBuffer[b] <= 250)) {
-              // device address is valid
-              b++;
-            }
-          } else if(RxBuffer[b] == _device )  {
-            // rx buffer and tx buffer have the same device address -> ok
-            b++;    
-          } else {
-            // wrong device address
-            if (KB_DEBUG) Serial.print(" -ERROR: DEVICE ADDRESS-");
-          }
-        } else if(b == 1) {
-          // second step, check for function code
-          // handles exception errors (communication protocol: 3.3.2.2 / Exception errors )
-
-          if(RxBuffer[b] != (0x80 | TxBuffer[b])) { 
-
-            if( RxBuffer[b] == TxBuffer[b]) {
-              // the transmitted and the received function code are the same 
-              b++;
-            } else {
-              // function code was wrong, go back to the first step
-              b = 0;
-              if (KB_DEBUG) Serial.print(" -ERROR: FUNCTION CODE-");
-            }
-          } else {
-            // exception error flag is set
-            b++;
-            nRX = 3;
-            if (KB_DEBUG) Serial.print(" -EXCEPTION- ");
-          }
-        } else {
-         // step > 2
-          b++;
-        }
-        if (KB_DEBUG) Serial.print("'");      
-
-        startTimeout = millis();  
-      }
-    }      
+        
     now = millis();    
   } while((b < nRX) && (now - startTimeout <= _timeout) && (Error == RS_OK)); // timeout 
 
@@ -864,13 +780,6 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
 
     if (KB_DEBUG) {
       
-     /* Serial.print("\r\nRXBUF: "); 
-      for(cntp = 0; cntp < COMM_TX_MAX + COMM_RX_MAX; cntp++) {
-        Serial.print("\n");
-        Serial.print(cntp);
-        Serial.print(": ");
-        Serial.print(RxBuffer[cntp]);
-      }*/
       Serial.print("\r\nCRC: HB:"); 
       Serial.print(highByte(Crc));
       Serial.print(" LB:");
@@ -905,8 +814,6 @@ void CKellerBus::TransferData(byte nTX, byte nRX)
     }
   }  
 
-  // Close the serialPort
-  close();
   if (KB_DEBUG) Serial.print("Fehler:");
   if (KB_DEBUG) Serial.println(Error);
 }
@@ -983,31 +890,6 @@ float CKellerBus::getT(uint8_t unit)
   return temperatureConversion(readChannel(CH_T),unit);
 }
 
-/**
-  @brief Open the hardwareserial port
-*/
-
-void CKellerBus::open(void)
-{
-  if(useHWSerial) {
-    hwSerial->begin(_baudrate);
-  } else {
-    swSerial->begin(_baudrate);
-  }  
-}
-
-/**
-  @brief Close the hardwareserial port
-*/
-
-void CKellerBus::close(void)
-{
-  if(useHWSerial) {
-    hwSerial->end();
-  } else {
-    swSerial->end();
-  } 
-}
 
 /**
   @brief Converts the pressure value.
@@ -1097,10 +979,10 @@ float CKellerBus::pressureConversion(float sValue, uint8_t targetUnit)
   
   _available values for "unit"_
 
-  - T_DEGC  conversion to 캜 Celsius
-  - T_DEGK  conversion to 캩 Kelvin
-  - T_DEGF  conversion to 캟 Fahreinheit
-  - T_DEGR  conversion to 캲 Rankine
+  - T_DEGC  conversion to 째C Celsius
+  - T_DEGK  conversion to 째K Kelvin
+  - T_DEGF  conversion to 째F Fahreinheit
+  - T_DEGR  conversion to 째R Rankine
   
   @return Converted temperature value.
 */ 
